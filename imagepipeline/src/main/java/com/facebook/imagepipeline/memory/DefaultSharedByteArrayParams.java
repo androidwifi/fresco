@@ -15,21 +15,21 @@ import com.facebook.common.util.ByteConstants;
  * Provides pool parameters ({@link PoolParams}) for {@link SharedByteArray}
  */
 public class DefaultSharedByteArrayParams {
-  // the default max buffer size we'll use
-  private static final int DEFAULT_MAX_BYTE_ARRAY_SIZE = 4 * ByteConstants.MB;
-  // the min buffer size we'll use
-  private static final int DEFAULT_MIN_BYTE_ARRAY_SIZE = 128 * ByteConstants.KB;
+    // the default max buffer size we'll use
+    private static final int DEFAULT_MAX_BYTE_ARRAY_SIZE = 4 * ByteConstants.MB;
+    // the min buffer size we'll use
+    private static final int DEFAULT_MIN_BYTE_ARRAY_SIZE = 128 * ByteConstants.KB;
 
-  private DefaultSharedByteArrayParams() {
-  }
+    private DefaultSharedByteArrayParams() {
+    }
 
-  public static PoolParams get() {
-    return new PoolParams(
-        DEFAULT_MAX_BYTE_ARRAY_SIZE,
-        DEFAULT_MAX_BYTE_ARRAY_SIZE,
-        null,
-        DEFAULT_MIN_BYTE_ARRAY_SIZE,
-        DEFAULT_MAX_BYTE_ARRAY_SIZE
-    );
-  }
+    public static PoolParams get() {
+        return new PoolParams(
+                DEFAULT_MAX_BYTE_ARRAY_SIZE,
+                DEFAULT_MAX_BYTE_ARRAY_SIZE,
+                null,
+                DEFAULT_MIN_BYTE_ARRAY_SIZE,
+                DEFAULT_MAX_BYTE_ARRAY_SIZE
+        );
+    }
 }

@@ -17,21 +17,21 @@ import com.facebook.common.internal.Supplier;
  */
 public class DataSources {
 
-  private DataSources() {
-  }
+    private DataSources() {
+    }
 
-  public static <T> DataSource<T> immediateFailedDataSource(Throwable failure) {
-    SettableDataSource<T> settableDataSource = SettableDataSource.create();
-    settableDataSource.setFailure(failure);
-    return settableDataSource;
-  }
+    public static <T> DataSource<T> immediateFailedDataSource(Throwable failure) {
+        SettableDataSource<T> settableDataSource = SettableDataSource.create();
+        settableDataSource.setFailure(failure);
+        return settableDataSource;
+    }
 
-  public static <T> Supplier<DataSource<T>> getFailedDataSourceSupplier(final Throwable failure) {
-    return new Supplier<DataSource<T>>() {
-      @Override
-      public DataSource<T> get() {
-        return DataSources.immediateFailedDataSource(failure);
-      }
-    };
-  }
+    public static <T> Supplier<DataSource<T>> getFailedDataSourceSupplier(final Throwable failure) {
+        return new Supplier<DataSource<T>>() {
+            @Override
+            public DataSource<T> get() {
+                return DataSources.immediateFailedDataSource(failure);
+            }
+        };
+    }
 }

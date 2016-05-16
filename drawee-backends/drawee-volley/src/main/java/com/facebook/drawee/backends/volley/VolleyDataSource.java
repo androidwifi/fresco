@@ -21,49 +21,50 @@ import com.facebook.datasource.AbstractDataSource;
  * {@link DataSource} that wraps Volley {@link ImageLoader}.
  */
 public class VolleyDataSource extends AbstractDataSource<Bitmap> {
-  private ImageLoader.ImageContainer mImageContainer;
+    private ImageLoader.ImageContainer mImageContainer;
 
-  public VolleyDataSource(
-      final ImageLoader imageLoader,
-      final Uri imageRequest,
-      final boolean bitmapCacheOnly) {
+    public VolleyDataSource(
+            final ImageLoader imageLoader,
+            final Uri imageRequest,
+            final boolean bitmapCacheOnly) {
 
-    // TODO: add VolleyImageRequest {uri, resizeOptions, bitmapCacheOnly, ...}
-    String uriString = imageRequest.toString();
-    int maxWidth = 0;
-    int maxHeight = 0;
+        // TODO: add VolleyImageRequest {uri, resizeOptions, bitmapCacheOnly, ...}
+        String uriString = imageRequest.toString();
+        int maxWidth = 0;
+        int maxHeight = 0;
 
-    if (bitmapCacheOnly) {
-      if (!imageLoader.isCached(uriString, maxWidth, maxHeight)) {
-        mImageContainer = null;
-        setFailure(new NullPointerException("Image not found in bitmap-cache."));
-        return;
-      }
-    }
-
-    mImageContainer = imageLoader.get(
-        uriString,
-        new ImageLoader.ImageListener() {
-          @Override
-          public void onErrorResponse(VolleyError error) {
-            setFailure(error.getCause());
-          }
-          @Override
-          public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
-            if (response.getBitmap() != null) {
-              setResult(response.getBitmap(), true);
+        if (bitmapCacheOnly) {
+            if (!imageLoader.isCached(uriString, maxWidth, maxHeight)) {
+                mImageContainer = null;
+                setFailure(new NullPointerException("Image not found in bitmap-cache."));
+                return;
             }
-          }
-        },
-        maxWidth,
-        maxHeight);
-  }
+        }
 
-  @Override
-  public boolean close() {
-    if (mImageContainer != null) {
-      mImageContainer.cancelRequest();
+        mImageContainer = imageLoader.get(
+                uriString,
+                new ImageLoader.ImageListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        setFailure(error.getCause());
+                    }
+
+                    @Override
+                    public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+                        if (response.getBitmap() != null) {
+                            setResult(response.getBitmap(), true);
+                        }
+                    }
+                },
+                maxWidth,
+                maxHeight);
     }
-    return super.close();
-  }
+
+    @Override
+    public boolean close() {
+        if (mImageContainer != null) {
+            mImageContainer.cancelRequest();
+        }
+        return super.close();
+    }
 }

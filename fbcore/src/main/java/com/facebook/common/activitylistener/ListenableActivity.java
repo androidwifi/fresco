@@ -14,17 +14,17 @@ package com.facebook.common.activitylistener;
  */
 public interface ListenableActivity {
 
-  /**
-   * Adds ActivityListener to the activity
-   *
-   * @param listener
-   */
-  public void addActivityListener(ActivityListener listener);
+    /**
+     * Adds ActivityListener to the activity
+     *
+     * @param listener
+     */
+    public void addActivityListener(ActivityListener listener);
 
-  /**
-   * Removes ActivityListener from the activity
-   *
-   * @param listener
-   */
-  public void removeActivityListener(ActivityListener listener);
+    /**
+     * Removes ActivityListener from the activity
+     *
+     * @param listener
+     */
+    public void removeActivityListener(ActivityListener listener);
 }

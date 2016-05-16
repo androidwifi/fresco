@@ -21,49 +21,55 @@ import com.facebook.common.disk.DiskTrimmable;
  */
 public interface FileCache extends DiskTrimmable {
 
-  /**
-   * Tells if this cache is enabled. It's important for some caches that can be disabled
-   * without further notice (like in removable/unmountable storage). Anyway a disabled
-   * cache should just ignore calls, not fail.
-   * @return true if this cache is usable, false otherwise.
-   */
-  boolean isEnabled();
+    /**
+     * Tells if this cache is enabled. It's important for some caches that can be disabled
+     * without further notice (like in removable/unmountable storage). Anyway a disabled
+     * cache should just ignore calls, not fail.
+     *
+     * @return true if this cache is usable, false otherwise.
+     */
+    boolean isEnabled();
 
-  /**
-   * Returns the binary resource cached with key.
-   */
-  BinaryResource getResource(CacheKey key);
+    /**
+     * Returns the binary resource cached with key.
+     */
+    BinaryResource getResource(CacheKey key);
 
-  boolean hasKey(CacheKey key);
-  boolean probe(CacheKey key);
+    boolean hasKey(CacheKey key);
 
-  /**
-   * Inserts resource into file with key
-   * @param key cache key
-   * @param writer Callback that writes to an output stream
-   * @return a sequence of bytes
-   * @throws IOException
-   */
-  BinaryResource insert(CacheKey key, WriterCallback writer) throws IOException;
+    boolean probe(CacheKey key);
 
-  /**
-   * Removes a resource by key from cache.
-   * @param key cache key
-   */
-  void remove(CacheKey key);
+    /**
+     * Inserts resource into file with key
+     *
+     * @param key    cache key
+     * @param writer Callback that writes to an output stream
+     * @return a sequence of bytes
+     * @throws IOException
+     */
+    BinaryResource insert(CacheKey key, WriterCallback writer) throws IOException;
 
-  /**
-   * @return the in-use size of the cache
-   */
-  long getSize();
+    /**
+     * Removes a resource by key from cache.
+     *
+     * @param key cache key
+     */
+    void remove(CacheKey key);
 
-  /**
-   * Deletes old cache files.
-   * @param cacheExpirationMs files older than this will be deleted.
-   * @return the age in ms of the oldest file remaining in the cache.
-   */
-  long clearOldEntries(long cacheExpirationMs);
-  void clearAll();
+    /**
+     * @return the in-use size of the cache
+     */
+    long getSize();
 
-  public DiskStorage.DiskDumpInfo getDumpInfo() throws IOException;
+    /**
+     * Deletes old cache files.
+     *
+     * @param cacheExpirationMs files older than this will be deleted.
+     * @return the age in ms of the oldest file remaining in the cache.
+     */
+    long clearOldEntries(long cacheExpirationMs);
+
+    void clearAll();
+
+    public DiskStorage.DiskDumpInfo getDumpInfo() throws IOException;
 }

@@ -14,29 +14,29 @@ import com.facebook.imagepipeline.image.CloseableImage;
 
 public class BitmapMemoryCacheFactory {
 
-  public static MemoryCache<CacheKey, CloseableImage> get(
-    final CountingMemoryCache<CacheKey, CloseableImage> bitmapCountingMemoryCache,
-    final ImageCacheStatsTracker imageCacheStatsTracker) {
+    public static MemoryCache<CacheKey, CloseableImage> get(
+            final CountingMemoryCache<CacheKey, CloseableImage> bitmapCountingMemoryCache,
+            final ImageCacheStatsTracker imageCacheStatsTracker) {
 
-    imageCacheStatsTracker.registerBitmapMemoryCache(bitmapCountingMemoryCache);
+        imageCacheStatsTracker.registerBitmapMemoryCache(bitmapCountingMemoryCache);
 
-    MemoryCacheTracker memoryCacheTracker = new MemoryCacheTracker() {
-      @Override
-      public void onCacheHit() {
-        imageCacheStatsTracker.onBitmapCacheHit();
-      }
+        MemoryCacheTracker memoryCacheTracker = new MemoryCacheTracker() {
+            @Override
+            public void onCacheHit() {
+                imageCacheStatsTracker.onBitmapCacheHit();
+            }
 
-      @Override
-      public void onCacheMiss() {
-        imageCacheStatsTracker.onBitmapCacheMiss();
-      }
+            @Override
+            public void onCacheMiss() {
+                imageCacheStatsTracker.onBitmapCacheMiss();
+            }
 
-      @Override
-      public void onCachePut() {
-        imageCacheStatsTracker.onBitmapCachePut();
-      }
-    };
+            @Override
+            public void onCachePut() {
+                imageCacheStatsTracker.onBitmapCachePut();
+            }
+        };
 
-    return new InstrumentedMemoryCache<>(bitmapCountingMemoryCache, memoryCacheTracker);
-  }
+        return new InstrumentedMemoryCache<>(bitmapCountingMemoryCache, memoryCacheTracker);
+    }
 }

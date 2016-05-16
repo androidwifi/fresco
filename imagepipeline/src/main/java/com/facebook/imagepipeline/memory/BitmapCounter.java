@@ -20,70 +20,70 @@ import com.facebook.common.internal.Preconditions;
  */
 public class BitmapCounter {
 
-  @GuardedBy("this")
-  private int mCount;
+    @GuardedBy("this")
+    private int mCount;
 
-  @GuardedBy("this")
-  private long mSize;
+    @GuardedBy("this")
+    private long mSize;
 
-  private final int mMaxCount;
-  private final int mMaxSize;
+    private final int mMaxCount;
+    private final int mMaxSize;
 
-  public BitmapCounter(int maxCount, int maxSize) {
-    Preconditions.checkArgument(maxCount > 0);
-    Preconditions.checkArgument(maxSize > 0);
-    mMaxCount = maxCount;
-    mMaxSize = maxSize;
-  }
-
-  /**
-   * Includes given bitmap in the bitmap count. The bitmap is included only if doing so does not
-   * violate configured limit
-   *
-   * @param bitmap to include in the count
-   * @return true if and only if bitmap is successfully included in the count
-   */
-  public synchronized boolean increase(Bitmap bitmap) {
-    final int bitmapSize = getBitmapSize(bitmap);
-    if (mCount >= mMaxCount || mSize + bitmapSize > mMaxSize) {
-      return false;
+    public BitmapCounter(int maxCount, int maxSize) {
+        Preconditions.checkArgument(maxCount > 0);
+        Preconditions.checkArgument(maxSize > 0);
+        mMaxCount = maxCount;
+        mMaxSize = maxSize;
     }
 
-    mCount++;
-    mSize += bitmapSize;
-    return true;
-  }
+    /**
+     * Includes given bitmap in the bitmap count. The bitmap is included only if doing so does not
+     * violate configured limit
+     *
+     * @param bitmap to include in the count
+     * @return true if and only if bitmap is successfully included in the count
+     */
+    public synchronized boolean increase(Bitmap bitmap) {
+        final int bitmapSize = getBitmapSize(bitmap);
+        if (mCount >= mMaxCount || mSize + bitmapSize > mMaxSize) {
+            return false;
+        }
 
-  /**
-   * Excludes given bitmap from the count.
-   *
-   * @param bitmap to be excluded from the count
-   */
-  public synchronized void decrease(Bitmap bitmap) {
-    final int bitmapSize = getBitmapSize(bitmap);
-    Preconditions.checkArgument(bitmapSize <= mSize);
-    Preconditions.checkArgument(mCount > 0);
+        mCount++;
+        mSize += bitmapSize;
+        return true;
+    }
 
-    mSize -= bitmapSize;
-    mCount--;
-  }
+    /**
+     * Excludes given bitmap from the count.
+     *
+     * @param bitmap to be excluded from the count
+     */
+    public synchronized void decrease(Bitmap bitmap) {
+        final int bitmapSize = getBitmapSize(bitmap);
+        Preconditions.checkArgument(bitmapSize <= mSize);
+        Preconditions.checkArgument(mCount > 0);
 
-  /**
-   * @return number of counted bitmaps
-   */
-  public synchronized int getCount() {
-    return mCount;
-  }
+        mSize -= bitmapSize;
+        mCount--;
+    }
 
-  /**
-   * @return total size in bytes of counted bitmaps
-   */
-  public synchronized long getSize() {
-    return mSize;
-  }
+    /**
+     * @return number of counted bitmaps
+     */
+    public synchronized int getCount() {
+        return mCount;
+    }
 
-  public static int getBitmapSize(Bitmap bitmap) {
-    Preconditions.checkNotNull(bitmap);
-    return bitmap.getRowBytes() * bitmap.getHeight();
-  }
+    /**
+     * @return total size in bytes of counted bitmaps
+     */
+    public synchronized long getSize() {
+        return mSize;
+    }
+
+    public static int getBitmapSize(Bitmap bitmap) {
+        Preconditions.checkNotNull(bitmap);
+        return bitmap.getRowBytes() * bitmap.getHeight();
+    }
 }

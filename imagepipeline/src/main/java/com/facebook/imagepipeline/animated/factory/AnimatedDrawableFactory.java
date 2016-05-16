@@ -36,80 +36,80 @@ import com.facebook.imagepipeline.animated.util.AnimatedDrawableUtil;
  */
 public class AnimatedDrawableFactory {
 
-  private final AnimatedDrawableBackendProvider mAnimatedDrawableBackendProvider;
-  private final AnimatedDrawableCachingBackendImplProvider mAnimatedDrawableCachingBackendProvider;
-  private final AnimatedDrawableUtil mAnimatedDrawableUtil;
-  private final ScheduledExecutorService mScheduledExecutorServiceForUiThread;
-  private final MonotonicClock mMonotonicClock;
-  private final Resources mResources;
+    private final AnimatedDrawableBackendProvider mAnimatedDrawableBackendProvider;
+    private final AnimatedDrawableCachingBackendImplProvider mAnimatedDrawableCachingBackendProvider;
+    private final AnimatedDrawableUtil mAnimatedDrawableUtil;
+    private final ScheduledExecutorService mScheduledExecutorServiceForUiThread;
+    private final MonotonicClock mMonotonicClock;
+    private final Resources mResources;
 
-  public AnimatedDrawableFactory(
-      AnimatedDrawableBackendProvider animatedDrawableBackendProvider,
-      AnimatedDrawableCachingBackendImplProvider animatedDrawableCachingBackendProvider,
-      AnimatedDrawableUtil animatedDrawableUtil,
-      ScheduledExecutorService scheduledExecutorService,
-      Resources resources) {
-    mAnimatedDrawableBackendProvider = animatedDrawableBackendProvider;
-    mAnimatedDrawableCachingBackendProvider = animatedDrawableCachingBackendProvider;
-    mAnimatedDrawableUtil = animatedDrawableUtil;
-    mScheduledExecutorServiceForUiThread = scheduledExecutorService;
-    mMonotonicClock = new MonotonicClock() {
-      @Override
-      public long now() {
-        // Must be SystemClock.uptimeMillis to be compatible with what Android's View uses.
-        return SystemClock.uptimeMillis();
-      }
-    };
-    mResources = resources;
-  }
-
-  /**
-   * Creates an {@link AnimatedDrawable} based on an {@link AnimatedImage}.
-   *
-   * @param animatedImageResult the result of the code
-   * @return a newly constructed {@link AnimatedDrawable}
-   */
-  public AnimatedDrawable create(AnimatedImageResult animatedImageResult) {
-    return create(animatedImageResult, AnimatedDrawableOptions.DEFAULTS);
-  }
-
-  /**
-   * Creates an {@link AnimatedDrawable} based on an {@link AnimatedImage}.
-   *
-   * @param animatedImageResult the result of the code
-   * @param options additional options
-   * @return a newly constructed {@link AnimatedDrawable}
-   */
-  public AnimatedDrawable create(
-      AnimatedImageResult animatedImageResult,
-      AnimatedDrawableOptions options) {
-    AnimatedImage animatedImage = animatedImageResult.getImage();
-    Rect initialBounds = new Rect(0, 0, animatedImage.getWidth(), animatedImage.getHeight());
-    AnimatedDrawableBackend animatedDrawableBackend =
-        mAnimatedDrawableBackendProvider.get(animatedImageResult, initialBounds);
-    return createAnimatedDrawable(options, animatedDrawableBackend);
-  }
-
-  private AnimatedDrawable createAnimatedDrawable(
-      AnimatedDrawableOptions options,
-      AnimatedDrawableBackend animatedDrawableBackend) {
-    DisplayMetrics displayMetrics = mResources.getDisplayMetrics();
-    AnimatedDrawableDiagnostics animatedDrawableDiagnostics;
-    AnimatedDrawableCachingBackend animatedDrawableCachingBackend =
-        mAnimatedDrawableCachingBackendProvider.get(
-            animatedDrawableBackend,
-            options);
-    if (options.enableDebugging) {
-      animatedDrawableDiagnostics =
-          new AnimatedDrawableDiagnosticsImpl(mAnimatedDrawableUtil, displayMetrics);
-    } else {
-      animatedDrawableDiagnostics = AnimatedDrawableDiagnosticsNoop.getInstance();
+    public AnimatedDrawableFactory(
+            AnimatedDrawableBackendProvider animatedDrawableBackendProvider,
+            AnimatedDrawableCachingBackendImplProvider animatedDrawableCachingBackendProvider,
+            AnimatedDrawableUtil animatedDrawableUtil,
+            ScheduledExecutorService scheduledExecutorService,
+            Resources resources) {
+        mAnimatedDrawableBackendProvider = animatedDrawableBackendProvider;
+        mAnimatedDrawableCachingBackendProvider = animatedDrawableCachingBackendProvider;
+        mAnimatedDrawableUtil = animatedDrawableUtil;
+        mScheduledExecutorServiceForUiThread = scheduledExecutorService;
+        mMonotonicClock = new MonotonicClock() {
+            @Override
+            public long now() {
+                // Must be SystemClock.uptimeMillis to be compatible with what Android's View uses.
+                return SystemClock.uptimeMillis();
+            }
+        };
+        mResources = resources;
     }
 
-    return new AnimatedDrawable(
-        mScheduledExecutorServiceForUiThread,
-        animatedDrawableCachingBackend,
-        animatedDrawableDiagnostics,
-        mMonotonicClock);
-  }
+    /**
+     * Creates an {@link AnimatedDrawable} based on an {@link AnimatedImage}.
+     *
+     * @param animatedImageResult the result of the code
+     * @return a newly constructed {@link AnimatedDrawable}
+     */
+    public AnimatedDrawable create(AnimatedImageResult animatedImageResult) {
+        return create(animatedImageResult, AnimatedDrawableOptions.DEFAULTS);
+    }
+
+    /**
+     * Creates an {@link AnimatedDrawable} based on an {@link AnimatedImage}.
+     *
+     * @param animatedImageResult the result of the code
+     * @param options             additional options
+     * @return a newly constructed {@link AnimatedDrawable}
+     */
+    public AnimatedDrawable create(
+            AnimatedImageResult animatedImageResult,
+            AnimatedDrawableOptions options) {
+        AnimatedImage animatedImage = animatedImageResult.getImage();
+        Rect initialBounds = new Rect(0, 0, animatedImage.getWidth(), animatedImage.getHeight());
+        AnimatedDrawableBackend animatedDrawableBackend =
+                mAnimatedDrawableBackendProvider.get(animatedImageResult, initialBounds);
+        return createAnimatedDrawable(options, animatedDrawableBackend);
+    }
+
+    private AnimatedDrawable createAnimatedDrawable(
+            AnimatedDrawableOptions options,
+            AnimatedDrawableBackend animatedDrawableBackend) {
+        DisplayMetrics displayMetrics = mResources.getDisplayMetrics();
+        AnimatedDrawableDiagnostics animatedDrawableDiagnostics;
+        AnimatedDrawableCachingBackend animatedDrawableCachingBackend =
+                mAnimatedDrawableCachingBackendProvider.get(
+                        animatedDrawableBackend,
+                        options);
+        if (options.enableDebugging) {
+            animatedDrawableDiagnostics =
+                    new AnimatedDrawableDiagnosticsImpl(mAnimatedDrawableUtil, displayMetrics);
+        } else {
+            animatedDrawableDiagnostics = AnimatedDrawableDiagnosticsNoop.getInstance();
+        }
+
+        return new AnimatedDrawable(
+                mScheduledExecutorServiceForUiThread,
+                animatedDrawableCachingBackend,
+                animatedDrawableDiagnostics,
+                mMonotonicClock);
+    }
 }

@@ -22,46 +22,47 @@ import com.facebook.common.internal.VisibleForTesting;
  * Memory cache producer for the encoded memory cache.
  */
 public class EncodedMemoryCacheProducer extends MemoryCacheProducer<CacheKey, PooledByteBuffer> {
-  @VisibleForTesting static final String PRODUCER_NAME = "EncodedMemoryCacheProducer";
+    @VisibleForTesting
+    static final String PRODUCER_NAME = "EncodedMemoryCacheProducer";
 
-  public EncodedMemoryCacheProducer(
-      MemoryCache<CacheKey, PooledByteBuffer> memoryCache,
-      CacheKeyFactory cacheKeyFactory,
-      Producer<CloseableReference<PooledByteBuffer>> nextProducer) {
-    super(memoryCache, cacheKeyFactory, nextProducer);
-  }
+    public EncodedMemoryCacheProducer(
+            MemoryCache<CacheKey, PooledByteBuffer> memoryCache,
+            CacheKeyFactory cacheKeyFactory,
+            Producer<CloseableReference<PooledByteBuffer>> nextProducer) {
+        super(memoryCache, cacheKeyFactory, nextProducer);
+    }
 
-  @Override
-  protected CacheKey getCacheKey(ImageRequest imageRequest) {
-    return mCacheKeyFactory.getEncodedCacheKey(imageRequest);
-  }
+    @Override
+    protected CacheKey getCacheKey(ImageRequest imageRequest) {
+        return mCacheKeyFactory.getEncodedCacheKey(imageRequest);
+    }
 
-  @Override
-  protected boolean isResultFinal(
-      CloseableReference<PooledByteBuffer> cachedResultFound) {
-    return true;
-  }
+    @Override
+    protected boolean isResultFinal(
+            CloseableReference<PooledByteBuffer> cachedResultFound) {
+        return true;
+    }
 
-  @Override
-  protected ImageRequest.RequestLevel getProducerRequestLevel() {
-    return ImageRequest.RequestLevel.ENCODED_MEMORY_CACHE;
-  }
+    @Override
+    protected ImageRequest.RequestLevel getProducerRequestLevel() {
+        return ImageRequest.RequestLevel.ENCODED_MEMORY_CACHE;
+    }
 
-  @Override
-  protected boolean shouldCacheReturnedValues() {
-    return true;
-  }
+    @Override
+    protected boolean shouldCacheReturnedValues() {
+        return true;
+    }
 
-  @Override
-  protected boolean shouldCacheResult(
-      CloseableReference<PooledByteBuffer> result,
-      CacheKey cacheKey,
-      boolean isLast) {
-    return isLast;
-  }
+    @Override
+    protected boolean shouldCacheResult(
+            CloseableReference<PooledByteBuffer> result,
+            CacheKey cacheKey,
+            boolean isLast) {
+        return isLast;
+    }
 
-  @Override
-  protected String getProducerName() {
-    return PRODUCER_NAME;
-  }
+    @Override
+    protected String getProducerName() {
+        return PRODUCER_NAME;
+    }
 }

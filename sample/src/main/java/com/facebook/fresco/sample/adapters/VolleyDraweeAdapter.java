@@ -25,43 +25,45 @@ import com.facebook.fresco.sample.configs.volley.SampleVolleyFactory;
 import com.facebook.fresco.sample.instrumentation.InstrumentedDraweeView;
 import com.facebook.fresco.sample.instrumentation.PerfListener;
 
-/** Populate the list view with images using Drawee backed by Volley. */
+/**
+ * Populate the list view with images using Drawee backed by Volley.
+ */
 public class VolleyDraweeAdapter extends ImageListAdapter<InstrumentedDraweeView> {
 
-  private VolleyDraweeControllerBuilderSupplier mVolleyDraweeControllerBuilderSupplier;
+    private VolleyDraweeControllerBuilderSupplier mVolleyDraweeControllerBuilderSupplier;
 
-  public VolleyDraweeAdapter(Context context, int resourceId, PerfListener perfListener) {
-    super(context, resourceId, perfListener);
-    mVolleyDraweeControllerBuilderSupplier = new VolleyDraweeControllerBuilderSupplier(
-        context,
-        SampleVolleyFactory.getImageLoader(context));
-    InstrumentedDraweeView.initialize(mVolleyDraweeControllerBuilderSupplier);
-  }
+    public VolleyDraweeAdapter(Context context, int resourceId, PerfListener perfListener) {
+        super(context, resourceId, perfListener);
+        mVolleyDraweeControllerBuilderSupplier = new VolleyDraweeControllerBuilderSupplier(
+                context,
+                SampleVolleyFactory.getImageLoader(context));
+        InstrumentedDraweeView.initialize(mVolleyDraweeControllerBuilderSupplier);
+    }
 
-  @Override
-  protected Class<InstrumentedDraweeView> getViewClass() {
-    return InstrumentedDraweeView.class;
-  }
+    @Override
+    protected Class<InstrumentedDraweeView> getViewClass() {
+        return InstrumentedDraweeView.class;
+    }
 
-  protected InstrumentedDraweeView createView() {
-    GenericDraweeHierarchy gdh = new GenericDraweeHierarchyBuilder(getContext().getResources())
-        .setPlaceholderImage(Drawables.sPlaceholderDrawable)
-        .setFailureImage(Drawables.sErrorDrawable)
-        .setRoundingParams(RoundingParams.asCircle())
-        .build();
-    InstrumentedDraweeView view = new InstrumentedDraweeView(getContext());
-    view.setHierarchy(gdh);
-    return view;
-  }
+    protected InstrumentedDraweeView createView() {
+        GenericDraweeHierarchy gdh = new GenericDraweeHierarchyBuilder(getContext().getResources())
+                .setPlaceholderImage(Drawables.sPlaceholderDrawable)
+                .setFailureImage(Drawables.sErrorDrawable)
+                .setRoundingParams(RoundingParams.asCircle())
+                .build();
+        InstrumentedDraweeView view = new InstrumentedDraweeView(getContext());
+        view.setHierarchy(gdh);
+        return view;
+    }
 
-  protected void bind(InstrumentedDraweeView view, String uri) {
-    view.setImageURI(Uri.parse(uri));
-  }
+    protected void bind(InstrumentedDraweeView view, String uri) {
+        view.setImageURI(Uri.parse(uri));
+    }
 
-  @Override
-  public void shutDown() {
-    super.clear();
-    InstrumentedDraweeView.shutDown();
-    SampleVolleyFactory.getMemoryCache().clear();
-  }
+    @Override
+    public void shutDown() {
+        super.clear();
+        InstrumentedDraweeView.shutDown();
+        SampleVolleyFactory.getMemoryCache().clear();
+    }
 }

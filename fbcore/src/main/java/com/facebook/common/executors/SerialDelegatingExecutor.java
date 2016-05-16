@@ -23,68 +23,68 @@ import com.facebook.common.internal.VisibleForTesting;
  */
 public class SerialDelegatingExecutor implements Executor {
 
-  private final Executor mDelegate;
-  @VisibleForTesting
-  final Runnable mRunnable;
+    private final Executor mDelegate;
+    @VisibleForTesting
+    final Runnable mRunnable;
 
-  /**
-   * True if and only if runnable has been passed to mDelegate for execution, but the execution
-   * itself has not completed yet.
-   */
-  @GuardedBy("this")
-  @VisibleForTesting
-  boolean mExecutionInProgress;
-  @GuardedBy("this")
-  final private Queue<Runnable> mCommands;
+    /**
+     * True if and only if runnable has been passed to mDelegate for execution, but the execution
+     * itself has not completed yet.
+     */
+    @GuardedBy("this")
+    @VisibleForTesting
+    boolean mExecutionInProgress;
+    @GuardedBy("this")
+    final private Queue<Runnable> mCommands;
 
-  public SerialDelegatingExecutor(Executor delegate) {
-    mDelegate = Preconditions.checkNotNull(delegate);
-    mExecutionInProgress = false;
-    mCommands = new LinkedList<Runnable>();
-    mRunnable = new Runnable() {
-      @Override
-      public void run() {
-        executeSingleCommand();
-      }
-    };
-  }
-
-  /**
-   * Submits another command for execution
-   */
-  @Override
-  public void execute(Runnable command) {
-    synchronized (this) {
-      mCommands.add(command);
+    public SerialDelegatingExecutor(Executor delegate) {
+        mDelegate = Preconditions.checkNotNull(delegate);
+        mExecutionInProgress = false;
+        mCommands = new LinkedList<Runnable>();
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                executeSingleCommand();
+            }
+        };
     }
-    maybeSubmitRunnable();
-  }
 
-  private void maybeSubmitRunnable() {
-    synchronized (this) {
-      if (mExecutionInProgress || mCommands.isEmpty()) {
-        return;
-      }
-      mExecutionInProgress = true;
+    /**
+     * Submits another command for execution
+     */
+    @Override
+    public void execute(Runnable command) {
+        synchronized (this) {
+            mCommands.add(command);
+        }
+        maybeSubmitRunnable();
     }
-    mDelegate.execute(mRunnable);
-  }
 
-  private void executeSingleCommand() {
-    Runnable command;
-    try {
-      removeNextCommand().run();
-    } finally {
-      clearExecutionInProgress();
-      maybeSubmitRunnable();
+    private void maybeSubmitRunnable() {
+        synchronized (this) {
+            if (mExecutionInProgress || mCommands.isEmpty()) {
+                return;
+            }
+            mExecutionInProgress = true;
+        }
+        mDelegate.execute(mRunnable);
     }
-  }
 
-  private synchronized Runnable removeNextCommand() {
-    return mCommands.remove();
-  }
+    private void executeSingleCommand() {
+        Runnable command;
+        try {
+            removeNextCommand().run();
+        } finally {
+            clearExecutionInProgress();
+            maybeSubmitRunnable();
+        }
+    }
 
-  private synchronized void clearExecutionInProgress() {
-    mExecutionInProgress = false;
-  }
+    private synchronized Runnable removeNextCommand() {
+        return mCommands.remove();
+    }
+
+    private synchronized void clearExecutionInProgress() {
+        mExecutionInProgress = false;
+    }
 }

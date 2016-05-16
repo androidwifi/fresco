@@ -35,94 +35,95 @@ import java.util.concurrent.Executor;
  */
 public class OkHttpNetworkFetcher extends BaseNetworkFetcher<FetchState> {
 
-  private static final String TAG = "OkHttpNetworkFetchProducer";
+    private static final String TAG = "OkHttpNetworkFetchProducer";
 
-  private final OkHttpClient mOkHttpClient;
+    private final OkHttpClient mOkHttpClient;
 
-  private Executor mCancellationExecutor;
+    private Executor mCancellationExecutor;
 
-  /**
-   * @param okHttpClient client to use
-   */
-  public OkHttpNetworkFetcher(OkHttpClient okHttpClient) {
-    mOkHttpClient = okHttpClient;
-    mCancellationExecutor = okHttpClient.getDispatcher().getExecutorService();
-  }
-
-  @Override
-  public FetchState createFetchState(
-      Consumer<CloseableReference<PooledByteBuffer>> consumer,
-      ProducerContext context) {
-    return new FetchState(consumer, context);
-  }
-
-  @Override
-  public void fetch(final FetchState requestState, final Callback callback) {
-    final Uri uri = requestState.getUri();
-    final Request request = new Request.Builder()
-        .cacheControl(new CacheControl.Builder().noStore().build())
-        .url(uri.toString())
-        .get()
-        .build();
-    final Call call = mOkHttpClient.newCall(request);
-
-    requestState.getContext().addCallbacks(
-        new BaseProducerContextCallbacks() {
-          @Override
-          public void onCancellationRequested() {
-            if (Looper.myLooper() != Looper.getMainLooper()) {
-              call.cancel();
-            } else {
-              mCancellationExecutor.execute(new Runnable() {
-                @Override public void run() {
-                  call.cancel();
-                }
-              });
-            }
-          }
-        });
-
-    call.enqueue(
-        new com.squareup.okhttp.Callback() {
-          @Override
-          public void onResponse(Response response) {
-            final ResponseBody body = response.body();
-            try {
-              long contentLength = body.contentLength();
-              if (contentLength < 0) {
-                contentLength = 0;
-              }
-              callback.onResponse(body.byteStream(), (int) contentLength);
-            } catch (IOException ioe) {
-              handleException(call, ioe, callback);
-            } finally {
-              try {
-                body.close();
-              } catch (IOException ioe) {
-                FLog.w(TAG, "Exception when closing response body", ioe);
-              }
-            }
-          }
-
-          @Override
-          public void onFailure(final Request request, final IOException e) {
-            handleException(call, e, callback);
-          }
-        });
-  }
-
-  /**
-   * Handles IOExceptions.
-   *
-   * <p> OkHttp notifies callers of cancellations via an IOException. If IOException is caught
-   * after request cancellation, then the exception is interpreted as successful cancellation
-   * and onCancellation is called. Otherwise onFailure is called.
-   */
-  private void handleException(final Call call, final IOException ioe, final Callback callback) {
-    if (call.isCanceled()) {
-      callback.onCancellation();
-    } else {
-      callback.onFailure(ioe);
+    /**
+     * @param okHttpClient client to use
+     */
+    public OkHttpNetworkFetcher(OkHttpClient okHttpClient) {
+        mOkHttpClient = okHttpClient;
+        mCancellationExecutor = okHttpClient.getDispatcher().getExecutorService();
     }
-  }
+
+    @Override
+    public FetchState createFetchState(
+            Consumer<CloseableReference<PooledByteBuffer>> consumer,
+            ProducerContext context) {
+        return new FetchState(consumer, context);
+    }
+
+    @Override
+    public void fetch(final FetchState requestState, final Callback callback) {
+        final Uri uri = requestState.getUri();
+        final Request request = new Request.Builder()
+                .cacheControl(new CacheControl.Builder().noStore().build())
+                .url(uri.toString())
+                .get()
+                .build();
+        final Call call = mOkHttpClient.newCall(request);
+
+        requestState.getContext().addCallbacks(
+                new BaseProducerContextCallbacks() {
+                    @Override
+                    public void onCancellationRequested() {
+                        if (Looper.myLooper() != Looper.getMainLooper()) {
+                            call.cancel();
+                        } else {
+                            mCancellationExecutor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    call.cancel();
+                                }
+                            });
+                        }
+                    }
+                });
+
+        call.enqueue(
+                new com.squareup.okhttp.Callback() {
+                    @Override
+                    public void onResponse(Response response) {
+                        final ResponseBody body = response.body();
+                        try {
+                            long contentLength = body.contentLength();
+                            if (contentLength < 0) {
+                                contentLength = 0;
+                            }
+                            callback.onResponse(body.byteStream(), (int) contentLength);
+                        } catch (IOException ioe) {
+                            handleException(call, ioe, callback);
+                        } finally {
+                            try {
+                                body.close();
+                            } catch (IOException ioe) {
+                                FLog.w(TAG, "Exception when closing response body", ioe);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(final Request request, final IOException e) {
+                        handleException(call, e, callback);
+                    }
+                });
+    }
+
+    /**
+     * Handles IOExceptions.
+     * <p>
+     * <p> OkHttp notifies callers of cancellations via an IOException. If IOException is caught
+     * after request cancellation, then the exception is interpreted as successful cancellation
+     * and onCancellation is called. Otherwise onFailure is called.
+     */
+    private void handleException(final Call call, final IOException ioe, final Callback callback) {
+        if (call.isCanceled()) {
+            callback.onCancellation();
+        } else {
+            callback.onFailure(ioe);
+        }
+    }
 }

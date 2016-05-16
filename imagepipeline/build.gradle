@@ -31,7 +31,6 @@ apply from: rootProject.file('release.gradle')
 
 def generatedTestSources = "$buildDir/generated-src/test"
 
-
 // Gradle and Buck need different versions of the test runner.
 // For gradle, WithTestDefaultsRunner just is a direct sub-class of RobolectricTestRunner.
 task generateTestSources {
@@ -41,14 +40,14 @@ task generateTestSources {
         def generated = new File(generatedTestSources, "WithTestDefaultsRunner.java")
         generated.text =
                 "package com.facebook.testing.robolectric.v2;\n" +
-                "import org.robolectric.RobolectricTestRunner;\n" +
-                "import org.junit.runners.model.InitializationError;\n" +
-                "public class WithTestDefaultsRunner extends RobolectricTestRunner {\n" +
-                "  public WithTestDefaultsRunner(final Class<?> testClass) " +
+                        "import org.robolectric.RobolectricTestRunner;\n" +
+                        "import org.junit.runners.model.InitializationError;\n" +
+                        "public class WithTestDefaultsRunner extends RobolectricTestRunner {\n" +
+                        "  public WithTestDefaultsRunner(final Class<?> testClass) " +
                         "throws InitializationError {" +
-                "    super(testClass);" +
-                "  }" +
-                "}"
+                        "    super(testClass);" +
+                        "  }" +
+                        "}"
     }
 }
 
@@ -125,7 +124,7 @@ task copyGiflib(dependsOn: unpackGiflib, type: Copy) {
 task copyLibjpeg(dependsOn: unpackLibjpeg, type: Copy) {
     from "${unpackLibjpeg.destinationDir}/libjpeg-turbo-1.3.1"
     from 'src/main/jni/third-party/libjpeg-turbo-1.3.x'
-    include('**/*.c', '**/*.h','**/*.S', '**/*.asm', '**/*.inc', '*.mk')
+    include('**/*.c', '**/*.h', '**/*.S', '**/*.asm', '**/*.inc', '*.mk')
     into "${mergeDir}/libjpeg-turbo-1.3.x"
 }
 
@@ -181,23 +180,23 @@ def makeNdkTasks(String name, Object[] deps) {
         inputs.file("src/main/jni/$name")
         outputs.dir("$buildDir/$name")
         commandLine getNdkBuildFullPath(),
-            'NDK_PROJECT_PATH=null',
-            'NDK_APPLICATION_MK=../Application.mk',
-            'NDK_OUT=' + temporaryDir,
-            "NDK_LIBS_OUT=$buildDir/$name",
-            '-C', file("src/main/jni/$name").absolutePath,
-            '--jobs', '8'
+                'NDK_PROJECT_PATH=null',
+                'NDK_APPLICATION_MK=../Application.mk',
+                'NDK_OUT=' + temporaryDir,
+                "NDK_LIBS_OUT=$buildDir/$name",
+                '-C', file("src/main/jni/$name").absolutePath,
+                '--jobs', '8'
     }
 
     task "ndk_clean_$name"(type: Exec) {
         ignoreExitValue true
         commandLine getNdkBuildFullPath(),
-            'NDK_PROJECT_PATH=null',
-            'NDK_APPLICATION_MK=../Application.mk',
-            'NDK_OUT=' + temporaryDir,
-            "NDK_LIBS_OUT=$buildDir/$name",
-            '-C', file("src/main/jni/$name").absolutePath,
-            'clean'
+                'NDK_PROJECT_PATH=null',
+                'NDK_APPLICATION_MK=../Application.mk',
+                'NDK_OUT=' + temporaryDir,
+                "NDK_LIBS_OUT=$buildDir/$name",
+                '-C', file("src/main/jni/$name").absolutePath,
+                'clean'
     }
 
     tasks.withType(JavaCompile) {
@@ -209,11 +208,11 @@ def makeNdkTasks(String name, Object[] deps) {
 
 android {
     def ndkLibs = [
-        ['bitmaps', []],
-        ['gifimage', [copyGiflib]],
-        ['imagepipeline', [copyLibjpeg, copyLibpng, copyLibwebp]],
-        ['memchunk', []],
-        ['webpimage', [copyLibwebp]]]
+            ['bitmaps', []],
+            ['gifimage', [copyGiflib]],
+            ['imagepipeline', [copyLibjpeg, copyLibpng, copyLibwebp]],
+            ['memchunk', []],
+            ['webpimage', [copyLibwebp]]]
 
     buildToolsVersion "21.1.2"
     compileSdkVersion 21

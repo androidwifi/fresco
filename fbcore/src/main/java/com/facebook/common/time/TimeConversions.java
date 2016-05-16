@@ -14,32 +14,32 @@ package com.facebook.common.time;
  */
 public class TimeConversions {
 
-  /**
-   * Convert time in millisecond to hours rounding down.
-   */
-  public static long millisecondsToHours(long timeMs) {
-    return timeMs / TimeConstants.MS_PER_HOUR;
-  }
+    /**
+     * Convert time in millisecond to hours rounding down.
+     */
+    public static long millisecondsToHours(long timeMs) {
+        return timeMs / TimeConstants.MS_PER_HOUR;
+    }
 
-  /**
-   * Convert time in milliseconds to minutes rounding down.
-   */
-  public static long millisecondsToMinutes(long timeMs) {
-    return timeMs / TimeConstants.MS_PER_MINUTE;
-  }
+    /**
+     * Convert time in milliseconds to minutes rounding down.
+     */
+    public static long millisecondsToMinutes(long timeMs) {
+        return timeMs / TimeConstants.MS_PER_MINUTE;
+    }
 
-  public static long millisecondsToDays(long timeMs) {
-    return timeMs / TimeConstants.MS_PER_DAY;
-  }
+    public static long millisecondsToDays(long timeMs) {
+        return timeMs / TimeConstants.MS_PER_DAY;
+    }
 
-  public static long millisecondsToYears(long timeMs) {
-    return timeMs / TimeConstants.MS_PER_YEAR;
-  }
+    public static long millisecondsToYears(long timeMs) {
+        return timeMs / TimeConstants.MS_PER_YEAR;
+    }
 
-  /**
-   * Convert time in milliseconds to seconds rounding down.
-   */
-  public static long millisecondsToSeconds(long timeMs) {
-    return timeMs / TimeConstants.MS_PER_SECOND;
-  }
+    /**
+     * Convert time in milliseconds to seconds rounding down.
+     */
+    public static long millisecondsToSeconds(long timeMs) {
+        return timeMs / TimeConstants.MS_PER_SECOND;
+    }
 }

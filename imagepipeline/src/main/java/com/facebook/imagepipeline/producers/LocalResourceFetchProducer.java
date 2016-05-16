@@ -24,48 +24,49 @@ import com.facebook.imagepipeline.request.ImageRequest;
  * Executes a local fetch from a resource.
  */
 public class LocalResourceFetchProducer extends LocalFetchProducer {
-  @VisibleForTesting static final String PRODUCER_NAME = "LocalResourceFetchProducer";
+    @VisibleForTesting
+    static final String PRODUCER_NAME = "LocalResourceFetchProducer";
 
-  private final Resources mResources;
+    private final Resources mResources;
 
-  public LocalResourceFetchProducer(
-      Executor executor,
-      PooledByteBufferFactory pooledByteBufferFactory,
-      Resources resources) {
-    super(executor, pooledByteBufferFactory);
-    mResources = resources;
-  }
-
-  @Override
-  protected InputStream getInputStream(ImageRequest imageRequest) throws IOException {
-    return mResources.openRawResource(getResourceId(imageRequest));
-  }
-
-  @Override
-  protected int getLength(ImageRequest imageRequest) {
-    AssetFileDescriptor fd = null;
-    try {
-      fd = mResources.openRawResourceFd(getResourceId(imageRequest));
-      return (int) fd.getLength();
-    } catch (Resources.NotFoundException e) {
-      return -1;
-    } finally {
-      try {
-        if (fd != null) {
-          fd.close();
-        }
-      } catch (IOException ignored) {
-        // There's nothing we can do with the exception when closing descriptor.
-      }
+    public LocalResourceFetchProducer(
+            Executor executor,
+            PooledByteBufferFactory pooledByteBufferFactory,
+            Resources resources) {
+        super(executor, pooledByteBufferFactory);
+        mResources = resources;
     }
-  }
 
-  @Override
-  protected String getProducerName() {
-    return PRODUCER_NAME;
-  }
+    @Override
+    protected InputStream getInputStream(ImageRequest imageRequest) throws IOException {
+        return mResources.openRawResource(getResourceId(imageRequest));
+    }
 
-  private static int getResourceId(ImageRequest imageRequest) {
-    return Integer.parseInt(imageRequest.getSourceUri().getPath().substring(1));
-  }
+    @Override
+    protected int getLength(ImageRequest imageRequest) {
+        AssetFileDescriptor fd = null;
+        try {
+            fd = mResources.openRawResourceFd(getResourceId(imageRequest));
+            return (int) fd.getLength();
+        } catch (Resources.NotFoundException e) {
+            return -1;
+        } finally {
+            try {
+                if (fd != null) {
+                    fd.close();
+                }
+            } catch (IOException ignored) {
+                // There's nothing we can do with the exception when closing descriptor.
+            }
+        }
+    }
+
+    @Override
+    protected String getProducerName() {
+        return PRODUCER_NAME;
+    }
+
+    private static int getResourceId(ImageRequest imageRequest) {
+        return Integer.parseInt(imageRequest.getSourceUri().getPath().substring(1));
+    }
 }

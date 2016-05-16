@@ -23,57 +23,57 @@ import java.util.concurrent.Future;
 
 /**
  * Network fetcher that uses the simplest Android stack.
- *
+ * <p>
  * <p> Apps requiring more sophisticated networking should implement their own
  * {@link NetworkFetcher}.
  */
 public class HttpUrlConnectionNetworkFetcher extends BaseNetworkFetcher<FetchState> {
 
-  private static final int NUM_NETWORK_THREADS = 3;
+    private static final int NUM_NETWORK_THREADS = 3;
 
-  private final ExecutorService mExecutorService;
+    private final ExecutorService mExecutorService;
 
-  public HttpUrlConnectionNetworkFetcher() {
-    mExecutorService = Executors.newFixedThreadPool(NUM_NETWORK_THREADS);
-  }
+    public HttpUrlConnectionNetworkFetcher() {
+        mExecutorService = Executors.newFixedThreadPool(NUM_NETWORK_THREADS);
+    }
 
-  @Override
-  public FetchState createFetchState(
-      Consumer<CloseableReference<PooledByteBuffer>> consumer,
-      ProducerContext context) {
-    return new FetchState(consumer, context);
-  }
+    @Override
+    public FetchState createFetchState(
+            Consumer<CloseableReference<PooledByteBuffer>> consumer,
+            ProducerContext context) {
+        return new FetchState(consumer, context);
+    }
 
-  @Override
-  public void fetch(final FetchState fetchState, final Callback callback) {
-    final Future<?> future = mExecutorService.submit(
-        new Runnable() {
-          @Override
-          public void run() {
-            HttpURLConnection connection = null;
-            try {
-              Uri uri = fetchState.getUri();
-              URL url = new URL(uri.toString());
-              connection = (HttpURLConnection) url.openConnection();
-              InputStream is = connection.getInputStream();
-              callback.onResponse(is, -1);
-            } catch (Exception e) {
-              callback.onFailure(e);
-            } finally {
-              if (connection != null) {
-                connection.disconnect();
-              }
-            }
-          }
-        });
-    fetchState.getContext().addCallbacks(
-        new BaseProducerContextCallbacks() {
-          @Override
-          public void onCancellationRequested() {
-            if (future.cancel(false)) {
-              callback.onCancellation();
-            }
-          }
-        });
-  }
+    @Override
+    public void fetch(final FetchState fetchState, final Callback callback) {
+        final Future<?> future = mExecutorService.submit(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        HttpURLConnection connection = null;
+                        try {
+                            Uri uri = fetchState.getUri();
+                            URL url = new URL(uri.toString());
+                            connection = (HttpURLConnection) url.openConnection();
+                            InputStream is = connection.getInputStream();
+                            callback.onResponse(is, -1);
+                        } catch (Exception e) {
+                            callback.onFailure(e);
+                        } finally {
+                            if (connection != null) {
+                                connection.disconnect();
+                            }
+                        }
+                    }
+                });
+        fetchState.getContext().addCallbacks(
+                new BaseProducerContextCallbacks() {
+                    @Override
+                    public void onCancellationRequested() {
+                        if (future.cancel(false)) {
+                            callback.onCancellation();
+                        }
+                    }
+                });
+    }
 }

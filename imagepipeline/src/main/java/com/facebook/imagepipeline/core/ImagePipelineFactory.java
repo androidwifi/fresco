@@ -48,9 +48,9 @@ import com.facebook.imagepipeline.memory.PooledByteBuffer;
 
 /**
  * Factory class for the image pipeline.
- *
+ * <p>
  * <p>This class constructs the pipeline and its dependencies from other libraries.
- *
+ * <p>
  * <p>As the pipeline object can be quite expensive to create, it is strongly
  * recommended that applications create just one instance of this class
  * and of the pipeline.
@@ -58,224 +58,232 @@ import com.facebook.imagepipeline.memory.PooledByteBuffer;
 @NotThreadSafe
 public class ImagePipelineFactory {
 
-  private static ImagePipelineFactory sInstance = null;
+    private static ImagePipelineFactory sInstance = null;
 
-  /** Gets the instance of {@link ImagePipelineFactory}. */
-  public static ImagePipelineFactory getInstance() {
-    return Preconditions.checkNotNull(sInstance, "ImagePipelineFactory was not initialized!");
-  }
-
-  /** Initializes {@link ImagePipelineFactory} with default config. */
-  public static void initialize(Context context) {
-    initialize(ImagePipelineConfig.newBuilder(context).build());
-  }
-
-  /** Initializes {@link ImagePipelineFactory} with the specified config. */
-  public static void initialize(ImagePipelineConfig imagePipelineConfig) {
-    sInstance = new ImagePipelineFactory(imagePipelineConfig);
-  }
-
-  /** Shuts {@link ImagePipelineFactory} down. */
-  public static void shutDown() {
-    if (sInstance != null) {
-      sInstance.getBitmapMemoryCache().removeAll(AndroidPredicates.<CacheKey>True());
-      sInstance.getEncodedMemoryCache().removeAll(AndroidPredicates.<CacheKey>True());
-      sInstance = null;
+    /**
+     * Gets the instance of {@link ImagePipelineFactory}.
+     */
+    public static ImagePipelineFactory getInstance() {
+        return Preconditions.checkNotNull(sInstance, "ImagePipelineFactory was not initialized!");
     }
-  }
 
-  private final ImagePipelineConfig mConfig;
-
-  private AnimatedDrawableFactory mAnimatedDrawableFactory;
-  private CountingMemoryCache<CacheKey, CloseableImage>
-      mBitmapCountingMemoryCache;
-  private MemoryCache<CacheKey, CloseableImage> mBitmapMemoryCache;
-  private EmptyJpegGenerator mEmptyJpegGenerator;
-  private CountingMemoryCache<CacheKey, PooledByteBuffer> mEncodedCountingMemoryCache;
-  private MemoryCache<CacheKey, PooledByteBuffer> mEncodedMemoryCache;
-  private BufferedDiskCache mMainBufferedDiskCache;
-  private DiskStorageCache mMainDiskStorageCache;
-  private ImagePipeline mImagePipeline;
-  private ProducerFactory mProducerFactory;
-  private ProducerSequenceFactory mProducerSequenceFactory;
-  private BufferedDiskCache mSmallImageBufferedDiskCache;
-  private DiskStorageCache mSmallImageDiskStorageCache;
-
-  public ImagePipelineFactory(ImagePipelineConfig config) {
-    mConfig = Preconditions.checkNotNull(config);
-  }
-
-  // We need some of these methods public for now so internal code can use them.
-
-  public CountingMemoryCache<CacheKey, CloseableImage>
-      getBitmapCountingMemoryCache() {
-    if (mBitmapCountingMemoryCache == null) {
-      mBitmapCountingMemoryCache =
-          BitmapCountingMemoryCacheFactory.get(
-              mConfig.getBitmapMemoryCacheParamsSupplier(),
-              mConfig.getMemoryTrimmableRegistry());
+    /**
+     * Initializes {@link ImagePipelineFactory} with default config.
+     */
+    public static void initialize(Context context) {
+        initialize(ImagePipelineConfig.newBuilder(context).build());
     }
-    return mBitmapCountingMemoryCache;
-  }
 
-  public MemoryCache<CacheKey, CloseableImage> getBitmapMemoryCache() {
-    if (mBitmapMemoryCache == null) {
-      mBitmapMemoryCache =
-          BitmapMemoryCacheFactory.get(
-              getBitmapCountingMemoryCache(),
-              mConfig.getImageCacheStatsTracker());
+    /**
+     * Initializes {@link ImagePipelineFactory} with the specified config.
+     */
+    public static void initialize(ImagePipelineConfig imagePipelineConfig) {
+        sInstance = new ImagePipelineFactory(imagePipelineConfig);
     }
-    return mBitmapMemoryCache;
-  }
 
-  public CountingMemoryCache<CacheKey, PooledByteBuffer> getEncodedCountingMemoryCache() {
-    if (mEncodedCountingMemoryCache == null) {
-      mEncodedCountingMemoryCache =
-          EncodedCountingMemoryCacheFactory.get(
-              mConfig.getEncodedMemoryCacheParamsSupplier(),
-              mConfig.getMemoryTrimmableRegistry());
-    }
-    return mEncodedCountingMemoryCache;
-  }
-
-  public MemoryCache<CacheKey, PooledByteBuffer> getEncodedMemoryCache() {
-    if (mEncodedMemoryCache == null) {
-      mEncodedMemoryCache =
-          EncodedMemoryCacheFactory.get(
-              getEncodedCountingMemoryCache(),
-              mConfig.getImageCacheStatsTracker());
-    }
-    return mEncodedMemoryCache;
-  }
-
-  private BufferedDiskCache getMainBufferedDiskCache() {
-    if (mMainBufferedDiskCache == null) {
-      mMainBufferedDiskCache =
-          new BufferedDiskCache(
-              getMainDiskStorageCache(),
-              mConfig.getPoolFactory().getPooledByteBufferFactory(),
-              mConfig.getPoolFactory().getPooledByteStreams(),
-              mConfig.getExecutorSupplier().forLocalStorageRead(),
-              mConfig.getExecutorSupplier().forLocalStorageWrite(),
-              mConfig.getImageCacheStatsTracker());
-    }
-    return mMainBufferedDiskCache;
-  }
-
-  public DiskStorageCache getMainDiskStorageCache() {
-    if (mMainDiskStorageCache == null) {
-      mMainDiskStorageCache =
-          DiskCacheFactory.newDiskStorageCache(mConfig.getMainDiskCacheConfig());
-    }
-    return mMainDiskStorageCache;
-  }
-
-  public ImagePipeline getImagePipeline() {
-    if (mImagePipeline == null) {
-      mImagePipeline =
-          new ImagePipeline(
-              getProducerSequenceFactory(),
-              mConfig.getRequestListeners(),
-              mConfig.getIsPrefetchEnabledSupplier(),
-              getBitmapMemoryCache(),
-              getEncodedMemoryCache(),
-              mConfig.getCacheKeyFactory());
-    }
-    return mImagePipeline;
-  }
-
-  private ProducerFactory getProducerFactory() {
-    if (mProducerFactory == null) {
-      mProducerFactory =
-          new ProducerFactory(
-              mConfig.getContext(),
-              mConfig.getPoolFactory().getCommonByteArrayPool(),
-              mConfig.getImageDecoder(),
-              mConfig.getProgressiveJpegConfig(),
-              mConfig.getExecutorSupplier(),
-              mConfig.getPoolFactory().getPooledByteBufferFactory(),
-              getBitmapMemoryCache(),
-              getEncodedMemoryCache(),
-              getMainBufferedDiskCache(),
-              getSmallImageBufferedDiskCache(),
-              mConfig.getCacheKeyFactory(),
-              mConfig.getPlatformBitmapFactory());
-    }
-    return mProducerFactory;
-  }
-
-  private ProducerSequenceFactory getProducerSequenceFactory() {
-    if (mProducerSequenceFactory == null) {
-      mProducerSequenceFactory =
-          new ProducerSequenceFactory(
-              getProducerFactory(),
-              mConfig.getNetworkFetcher(),
-              mConfig.isResizeAndRotateEnabledForNetwork());
-    }
-    return mProducerSequenceFactory;
-  }
-
-  public DiskStorageCache getSmallImageDiskStorageCache() {
-    if (mSmallImageDiskStorageCache == null) {
-      mSmallImageDiskStorageCache =
-          DiskCacheFactory.newDiskStorageCache(mConfig.getSmallImageDiskCacheConfig());
-    }
-    return mSmallImageDiskStorageCache;
-  }
-
-  private BufferedDiskCache getSmallImageBufferedDiskCache() {
-    if (mSmallImageBufferedDiskCache == null) {
-      mSmallImageBufferedDiskCache =
-          new BufferedDiskCache(
-              getSmallImageDiskStorageCache(),
-              mConfig.getPoolFactory().getPooledByteBufferFactory(),
-              mConfig.getPoolFactory().getPooledByteStreams(),
-              mConfig.getExecutorSupplier().forLocalStorageRead(),
-              mConfig.getExecutorSupplier().forLocalStorageWrite(),
-              mConfig.getImageCacheStatsTracker());
-    }
-    return mSmallImageBufferedDiskCache;
-  }
-
-  public AnimatedDrawableFactory getAnimatedDrawableFactory() {
-    if (mAnimatedDrawableFactory == null) {
-      final AnimatedDrawableUtil animatedDrawableUtil = new AnimatedDrawableUtil();
-      final MonotonicClock monotonicClock = RealtimeSinceBootClock.get();
-      final SerialExecutorService serialExecutorService =
-          new DefaultSerialExecutorService(mConfig.getExecutorSupplier().forDecode());
-      final ActivityManager activityManager =
-          (ActivityManager) mConfig.getContext().getSystemService(Context.ACTIVITY_SERVICE);
-
-      AnimatedDrawableCachingBackendImplProvider animatedDrawableCachingBackendImplProvider =
-          new AnimatedDrawableCachingBackendImplProvider() {
-            @Override
-            public AnimatedDrawableCachingBackendImpl get(
-                AnimatedDrawableBackend animatedDrawableBackend,
-                AnimatedDrawableOptions options) {
-              return new AnimatedDrawableCachingBackendImpl(
-                  serialExecutorService,
-                  activityManager,
-                  animatedDrawableUtil,
-                  monotonicClock,
-                  animatedDrawableBackend,
-                  options);
-            }
-          };
-
-      AnimatedDrawableBackendProvider backendProvider = new AnimatedDrawableBackendProvider() {
-        @Override
-        public AnimatedDrawableBackend get(AnimatedImageResult animatedImageResult, Rect bounds) {
-          return new AnimatedDrawableBackendImpl(animatedDrawableUtil, animatedImageResult, bounds);
+    /**
+     * Shuts {@link ImagePipelineFactory} down.
+     */
+    public static void shutDown() {
+        if (sInstance != null) {
+            sInstance.getBitmapMemoryCache().removeAll(AndroidPredicates.<CacheKey>True());
+            sInstance.getEncodedMemoryCache().removeAll(AndroidPredicates.<CacheKey>True());
+            sInstance = null;
         }
-      };
-
-      mAnimatedDrawableFactory = new AnimatedDrawableFactory(
-          backendProvider,
-          animatedDrawableCachingBackendImplProvider,
-          animatedDrawableUtil,
-          UiThreadImmediateExecutorService.getInstance(),
-          mConfig.getContext().getResources());
     }
-    return mAnimatedDrawableFactory;
-  }
+
+    private final ImagePipelineConfig mConfig;
+
+    private AnimatedDrawableFactory mAnimatedDrawableFactory;
+    private CountingMemoryCache<CacheKey, CloseableImage>
+            mBitmapCountingMemoryCache;
+    private MemoryCache<CacheKey, CloseableImage> mBitmapMemoryCache;
+    private EmptyJpegGenerator mEmptyJpegGenerator;
+    private CountingMemoryCache<CacheKey, PooledByteBuffer> mEncodedCountingMemoryCache;
+    private MemoryCache<CacheKey, PooledByteBuffer> mEncodedMemoryCache;
+    private BufferedDiskCache mMainBufferedDiskCache;
+    private DiskStorageCache mMainDiskStorageCache;
+    private ImagePipeline mImagePipeline;
+    private ProducerFactory mProducerFactory;
+    private ProducerSequenceFactory mProducerSequenceFactory;
+    private BufferedDiskCache mSmallImageBufferedDiskCache;
+    private DiskStorageCache mSmallImageDiskStorageCache;
+
+    public ImagePipelineFactory(ImagePipelineConfig config) {
+        mConfig = Preconditions.checkNotNull(config);
+    }
+
+    // We need some of these methods public for now so internal code can use them.
+
+    public CountingMemoryCache<CacheKey, CloseableImage>
+    getBitmapCountingMemoryCache() {
+        if (mBitmapCountingMemoryCache == null) {
+            mBitmapCountingMemoryCache =
+                    BitmapCountingMemoryCacheFactory.get(
+                            mConfig.getBitmapMemoryCacheParamsSupplier(),
+                            mConfig.getMemoryTrimmableRegistry());
+        }
+        return mBitmapCountingMemoryCache;
+    }
+
+    public MemoryCache<CacheKey, CloseableImage> getBitmapMemoryCache() {
+        if (mBitmapMemoryCache == null) {
+            mBitmapMemoryCache =
+                    BitmapMemoryCacheFactory.get(
+                            getBitmapCountingMemoryCache(),
+                            mConfig.getImageCacheStatsTracker());
+        }
+        return mBitmapMemoryCache;
+    }
+
+    public CountingMemoryCache<CacheKey, PooledByteBuffer> getEncodedCountingMemoryCache() {
+        if (mEncodedCountingMemoryCache == null) {
+            mEncodedCountingMemoryCache =
+                    EncodedCountingMemoryCacheFactory.get(
+                            mConfig.getEncodedMemoryCacheParamsSupplier(),
+                            mConfig.getMemoryTrimmableRegistry());
+        }
+        return mEncodedCountingMemoryCache;
+    }
+
+    public MemoryCache<CacheKey, PooledByteBuffer> getEncodedMemoryCache() {
+        if (mEncodedMemoryCache == null) {
+            mEncodedMemoryCache =
+                    EncodedMemoryCacheFactory.get(
+                            getEncodedCountingMemoryCache(),
+                            mConfig.getImageCacheStatsTracker());
+        }
+        return mEncodedMemoryCache;
+    }
+
+    private BufferedDiskCache getMainBufferedDiskCache() {
+        if (mMainBufferedDiskCache == null) {
+            mMainBufferedDiskCache =
+                    new BufferedDiskCache(
+                            getMainDiskStorageCache(),
+                            mConfig.getPoolFactory().getPooledByteBufferFactory(),
+                            mConfig.getPoolFactory().getPooledByteStreams(),
+                            mConfig.getExecutorSupplier().forLocalStorageRead(),
+                            mConfig.getExecutorSupplier().forLocalStorageWrite(),
+                            mConfig.getImageCacheStatsTracker());
+        }
+        return mMainBufferedDiskCache;
+    }
+
+    public DiskStorageCache getMainDiskStorageCache() {
+        if (mMainDiskStorageCache == null) {
+            mMainDiskStorageCache =
+                    DiskCacheFactory.newDiskStorageCache(mConfig.getMainDiskCacheConfig());
+        }
+        return mMainDiskStorageCache;
+    }
+
+    public ImagePipeline getImagePipeline() {
+        if (mImagePipeline == null) {
+            mImagePipeline =
+                    new ImagePipeline(
+                            getProducerSequenceFactory(),
+                            mConfig.getRequestListeners(),
+                            mConfig.getIsPrefetchEnabledSupplier(),
+                            getBitmapMemoryCache(),
+                            getEncodedMemoryCache(),
+                            mConfig.getCacheKeyFactory());
+        }
+        return mImagePipeline;
+    }
+
+    private ProducerFactory getProducerFactory() {
+        if (mProducerFactory == null) {
+            mProducerFactory =
+                    new ProducerFactory(
+                            mConfig.getContext(),
+                            mConfig.getPoolFactory().getCommonByteArrayPool(),
+                            mConfig.getImageDecoder(),
+                            mConfig.getProgressiveJpegConfig(),
+                            mConfig.getExecutorSupplier(),
+                            mConfig.getPoolFactory().getPooledByteBufferFactory(),
+                            getBitmapMemoryCache(),
+                            getEncodedMemoryCache(),
+                            getMainBufferedDiskCache(),
+                            getSmallImageBufferedDiskCache(),
+                            mConfig.getCacheKeyFactory(),
+                            mConfig.getPlatformBitmapFactory());
+        }
+        return mProducerFactory;
+    }
+
+    private ProducerSequenceFactory getProducerSequenceFactory() {
+        if (mProducerSequenceFactory == null) {
+            mProducerSequenceFactory =
+                    new ProducerSequenceFactory(
+                            getProducerFactory(),
+                            mConfig.getNetworkFetcher(),
+                            mConfig.isResizeAndRotateEnabledForNetwork());
+        }
+        return mProducerSequenceFactory;
+    }
+
+    public DiskStorageCache getSmallImageDiskStorageCache() {
+        if (mSmallImageDiskStorageCache == null) {
+            mSmallImageDiskStorageCache =
+                    DiskCacheFactory.newDiskStorageCache(mConfig.getSmallImageDiskCacheConfig());
+        }
+        return mSmallImageDiskStorageCache;
+    }
+
+    private BufferedDiskCache getSmallImageBufferedDiskCache() {
+        if (mSmallImageBufferedDiskCache == null) {
+            mSmallImageBufferedDiskCache =
+                    new BufferedDiskCache(
+                            getSmallImageDiskStorageCache(),
+                            mConfig.getPoolFactory().getPooledByteBufferFactory(),
+                            mConfig.getPoolFactory().getPooledByteStreams(),
+                            mConfig.getExecutorSupplier().forLocalStorageRead(),
+                            mConfig.getExecutorSupplier().forLocalStorageWrite(),
+                            mConfig.getImageCacheStatsTracker());
+        }
+        return mSmallImageBufferedDiskCache;
+    }
+
+    public AnimatedDrawableFactory getAnimatedDrawableFactory() {
+        if (mAnimatedDrawableFactory == null) {
+            final AnimatedDrawableUtil animatedDrawableUtil = new AnimatedDrawableUtil();
+            final MonotonicClock monotonicClock = RealtimeSinceBootClock.get();
+            final SerialExecutorService serialExecutorService =
+                    new DefaultSerialExecutorService(mConfig.getExecutorSupplier().forDecode());
+            final ActivityManager activityManager =
+                    (ActivityManager) mConfig.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+
+            AnimatedDrawableCachingBackendImplProvider animatedDrawableCachingBackendImplProvider =
+                    new AnimatedDrawableCachingBackendImplProvider() {
+                        @Override
+                        public AnimatedDrawableCachingBackendImpl get(
+                                AnimatedDrawableBackend animatedDrawableBackend,
+                                AnimatedDrawableOptions options) {
+                            return new AnimatedDrawableCachingBackendImpl(
+                                    serialExecutorService,
+                                    activityManager,
+                                    animatedDrawableUtil,
+                                    monotonicClock,
+                                    animatedDrawableBackend,
+                                    options);
+                        }
+                    };
+
+            AnimatedDrawableBackendProvider backendProvider = new AnimatedDrawableBackendProvider() {
+                @Override
+                public AnimatedDrawableBackend get(AnimatedImageResult animatedImageResult, Rect bounds) {
+                    return new AnimatedDrawableBackendImpl(animatedDrawableUtil, animatedImageResult, bounds);
+                }
+            };
+
+            mAnimatedDrawableFactory = new AnimatedDrawableFactory(
+                    backendProvider,
+                    animatedDrawableCachingBackendImplProvider,
+                    animatedDrawableUtil,
+                    UiThreadImmediateExecutorService.getInstance(),
+                    mConfig.getContext().getResources());
+        }
+        return mAnimatedDrawableFactory;
+    }
 }

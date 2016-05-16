@@ -24,37 +24,37 @@ import static org.mockito.Mockito.when;
 
 @RunWith(WithTestDefaultsRunner.class)
 public class MatrixDrawableTest {
-  private Drawable mUnderlyingDrawable;
-  private Matrix mMatrix1;
-  private Matrix mMatrix2;
+    private Drawable mUnderlyingDrawable;
+    private Matrix mMatrix1;
+    private Matrix mMatrix2;
 
-  private MatrixDrawable mMatrixDrawable;
+    private MatrixDrawable mMatrixDrawable;
 
-  @Before
-  public void setUp() {
-    mUnderlyingDrawable = mock(Drawable.class);
-    mMatrix1 = mock(Matrix.class);
-    mMatrix2 = mock(Matrix.class);
-    mMatrixDrawable = new MatrixDrawable(mUnderlyingDrawable, mMatrix1);
-  }
+    @Before
+    public void setUp() {
+        mUnderlyingDrawable = mock(Drawable.class);
+        mMatrix1 = mock(Matrix.class);
+        mMatrix2 = mock(Matrix.class);
+        mMatrixDrawable = new MatrixDrawable(mUnderlyingDrawable, mMatrix1);
+    }
 
-  @Test
-  public void testIntrinsicDimensions() {
-    when(mUnderlyingDrawable.getIntrinsicWidth()).thenReturn(100);
-    when(mUnderlyingDrawable.getIntrinsicHeight()).thenReturn(200);
-    Assert.assertEquals(100, mMatrixDrawable.getIntrinsicWidth());
-    Assert.assertEquals(200, mMatrixDrawable.getIntrinsicHeight());
-  }
+    @Test
+    public void testIntrinsicDimensions() {
+        when(mUnderlyingDrawable.getIntrinsicWidth()).thenReturn(100);
+        when(mUnderlyingDrawable.getIntrinsicHeight()).thenReturn(200);
+        Assert.assertEquals(100, mMatrixDrawable.getIntrinsicWidth());
+        Assert.assertEquals(200, mMatrixDrawable.getIntrinsicHeight());
+    }
 
-  @Test
-  public void testSetMatrix() throws Exception {
-    // initial state
-    Assert.assertEquals(mUnderlyingDrawable, mMatrixDrawable.getCurrent());
-    Assert.assertEquals(mMatrixDrawable.getMatrix(), mMatrix1);
+    @Test
+    public void testSetMatrix() throws Exception {
+        // initial state
+        Assert.assertEquals(mUnderlyingDrawable, mMatrixDrawable.getCurrent());
+        Assert.assertEquals(mMatrixDrawable.getMatrix(), mMatrix1);
 
-    mMatrixDrawable.setMatrix(mMatrix2);
-    Assert.assertEquals(mUnderlyingDrawable, mMatrixDrawable.getCurrent());
-    Assert.assertEquals(mMatrixDrawable.getMatrix(), mMatrix2);
-  }
+        mMatrixDrawable.setMatrix(mMatrix2);
+        Assert.assertEquals(mUnderlyingDrawable, mMatrixDrawable.getCurrent());
+        Assert.assertEquals(mMatrixDrawable.getMatrix(), mMatrix2);
+    }
 
 }

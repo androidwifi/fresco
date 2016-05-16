@@ -11,26 +11,26 @@ package com.facebook.imagepipeline.producers;
 
 /**
  * Swallow result producer.
- *
+ * <p>
  * <p>This producer just inserts a consumer that swallows results into the stack of consumers.
  */
 public class SwallowResultProducer<T> implements Producer<Void> {
-  private final Producer<T> mNextProducer;
+    private final Producer<T> mNextProducer;
 
-  public SwallowResultProducer(Producer<T> nextProducer) {
-    mNextProducer = nextProducer;
-  }
+    public SwallowResultProducer(Producer<T> nextProducer) {
+        mNextProducer = nextProducer;
+    }
 
-  @Override
-  public void produceResults(Consumer<Void> consumer, ProducerContext producerContext) {
-    DelegatingConsumer<T, Void> swallowResultConsumer = new DelegatingConsumer<T, Void>(consumer) {
-      @Override
-      protected void onNewResultImpl(T newResult, boolean isLast) {
-        if (isLast) {
-          getConsumer().onNewResult(null, isLast);
-        }
-      }
-    };
-    mNextProducer.produceResults(swallowResultConsumer, producerContext);
-  }
+    @Override
+    public void produceResults(Consumer<Void> consumer, ProducerContext producerContext) {
+        DelegatingConsumer<T, Void> swallowResultConsumer = new DelegatingConsumer<T, Void>(consumer) {
+            @Override
+            protected void onNewResultImpl(T newResult, boolean isLast) {
+                if (isLast) {
+                    getConsumer().onNewResult(null, isLast);
+                }
+            }
+        };
+        mNextProducer.produceResults(swallowResultConsumer, producerContext);
+    }
 }

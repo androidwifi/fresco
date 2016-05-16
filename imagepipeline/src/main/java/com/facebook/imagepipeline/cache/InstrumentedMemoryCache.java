@@ -15,33 +15,33 @@ import com.android.internal.util.Predicate;
 
 public class InstrumentedMemoryCache<K, V> implements MemoryCache<K, V> {
 
-  private final MemoryCache<K, V> mDelegate;
-  private final MemoryCacheTracker mTracker;
+    private final MemoryCache<K, V> mDelegate;
+    private final MemoryCacheTracker mTracker;
 
-  public InstrumentedMemoryCache(MemoryCache<K, V> delegate, MemoryCacheTracker tracker) {
-    mDelegate = delegate;
-    mTracker = tracker;
-  }
-
-  @Override
-  public CloseableReference<V> get(K key) {
-    CloseableReference<V> result = mDelegate.get(key);
-    if (result == null) {
-      mTracker.onCacheMiss();
-    } else {
-      mTracker.onCacheHit();
+    public InstrumentedMemoryCache(MemoryCache<K, V> delegate, MemoryCacheTracker tracker) {
+        mDelegate = delegate;
+        mTracker = tracker;
     }
-    return result;
-  }
 
-  @Override
-  public CloseableReference<V> cache(K key, CloseableReference<V> value) {
-    mTracker.onCachePut();
-    return mDelegate.cache(key, value);
-  }
+    @Override
+    public CloseableReference<V> get(K key) {
+        CloseableReference<V> result = mDelegate.get(key);
+        if (result == null) {
+            mTracker.onCacheMiss();
+        } else {
+            mTracker.onCacheHit();
+        }
+        return result;
+    }
 
-  @Override
-  public int removeAll(Predicate<K> predicate) {
-    return mDelegate.removeAll(predicate);
-  }
+    @Override
+    public CloseableReference<V> cache(K key, CloseableReference<V> value) {
+        mTracker.onCachePut();
+        return mDelegate.cache(key, value);
+    }
+
+    @Override
+    public int removeAll(Predicate<K> predicate) {
+        return mDelegate.removeAll(predicate);
+    }
 }

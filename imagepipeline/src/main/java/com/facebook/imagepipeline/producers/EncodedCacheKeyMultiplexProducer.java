@@ -20,18 +20,18 @@ import com.facebook.imagepipeline.request.ImageRequest;
  * Multiplex producer that uses the encoded cache key to combine requests.
  */
 public class EncodedCacheKeyMultiplexProducer extends
-    MultiplexProducer<Pair<CacheKey, ImageRequest.RequestLevel>, PooledByteBuffer> {
+        MultiplexProducer<Pair<CacheKey, ImageRequest.RequestLevel>, PooledByteBuffer> {
 
-  private final CacheKeyFactory mCacheKeyFactory;
+    private final CacheKeyFactory mCacheKeyFactory;
 
-  public EncodedCacheKeyMultiplexProducer(CacheKeyFactory cacheKeyFactory, Producer nextProducer) {
-    super(nextProducer);
-    mCacheKeyFactory = cacheKeyFactory;
-  }
+    public EncodedCacheKeyMultiplexProducer(CacheKeyFactory cacheKeyFactory, Producer nextProducer) {
+        super(nextProducer);
+        mCacheKeyFactory = cacheKeyFactory;
+    }
 
-  protected Pair<CacheKey, ImageRequest.RequestLevel> getKey(ProducerContext producerContext) {
-    return Pair.create(
-        mCacheKeyFactory.getEncodedCacheKey(producerContext.getImageRequest()),
-        producerContext.getLowestPermittedRequestLevel());
-  }
+    protected Pair<CacheKey, ImageRequest.RequestLevel> getKey(ProducerContext producerContext) {
+        return Pair.create(
+                mCacheKeyFactory.getEncodedCacheKey(producerContext.getImageRequest()),
+                producerContext.getLowestPermittedRequestLevel());
+    }
 }

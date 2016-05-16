@@ -19,22 +19,22 @@ import com.facebook.imagepipeline.bitmaps.PlatformBitmapFactory;
  */
 public interface Postprocessor {
 
-  /**
-   * Called by the pipeline after completing other steps.
-   *
-   * @param sourceBitmap The source bitmap.
-   * @param bitmapFactory The factory to create a destination bitmap.
-   *
-   * <p> The Postprocessor must not modify the source bitmap as it may be shared by the other
-   * clients. The implementation must create a new bitmap that is safe to be modified and return a
-   * reference to it. To create a bitmap, use the provided <code>bitmapFactory</code>.
-   */
-  CloseableReference<Bitmap> process(Bitmap sourceBitmap, PlatformBitmapFactory bitmapFactory);
+    /**
+     * Called by the pipeline after completing other steps.
+     *
+     * @param sourceBitmap  The source bitmap.
+     * @param bitmapFactory The factory to create a destination bitmap.
+     *                      <p>
+     *                      <p> The Postprocessor must not modify the source bitmap as it may be shared by the other
+     *                      clients. The implementation must create a new bitmap that is safe to be modified and return a
+     *                      reference to it. To create a bitmap, use the provided <code>bitmapFactory</code>.
+     */
+    CloseableReference<Bitmap> process(Bitmap sourceBitmap, PlatformBitmapFactory bitmapFactory);
 
-  /**
-   * Returns the name of this postprocessor.
-   *
-   * <p>Used for logging and analytics.
-   */
-  String getName();
+    /**
+     * Returns the name of this postprocessor.
+     * <p>
+     * <p>Used for logging and analytics.
+     */
+    String getName();
 }

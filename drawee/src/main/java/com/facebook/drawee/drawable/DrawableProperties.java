@@ -13,40 +13,40 @@ import android.graphics.ColorFilter;
 
 public class DrawableProperties {
 
-  private int mAlpha = 255;
-  private ColorFilter mColorFilter = null;
-  private boolean mDither = true;
-  private boolean mFilterBitmap = true;
+    private int mAlpha = 255;
+    private ColorFilter mColorFilter = null;
+    private boolean mDither = true;
+    private boolean mFilterBitmap = true;
 
-  public int getAlpha() {
-    return mAlpha;
-  }
+    public int getAlpha() {
+        return mAlpha;
+    }
 
-  public void setAlpha(int alpha) {
-    mAlpha = alpha;
-  }
+    public void setAlpha(int alpha) {
+        mAlpha = alpha;
+    }
 
-  public ColorFilter getColorFilter() {
-    return mColorFilter;
-  }
+    public ColorFilter getColorFilter() {
+        return mColorFilter;
+    }
 
-  public void setColorFilter(ColorFilter colorFilter) {
-    mColorFilter = colorFilter;
-  }
+    public void setColorFilter(ColorFilter colorFilter) {
+        mColorFilter = colorFilter;
+    }
 
-  public boolean isDither() {
-    return mDither;
-  }
+    public boolean isDither() {
+        return mDither;
+    }
 
-  public void setDither(boolean dither) {
-    mDither = dither;
-  }
+    public void setDither(boolean dither) {
+        mDither = dither;
+    }
 
-  public boolean isFilterBitmap() {
-    return mFilterBitmap;
-  }
+    public boolean isFilterBitmap() {
+        return mFilterBitmap;
+    }
 
-  public void setFilterBitmap(boolean filterBitmap) {
-    mFilterBitmap = filterBitmap;
-  }
+    public void setFilterBitmap(boolean filterBitmap) {
+        mFilterBitmap = filterBitmap;
+    }
 }

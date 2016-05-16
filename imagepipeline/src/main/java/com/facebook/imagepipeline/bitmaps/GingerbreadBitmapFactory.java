@@ -19,27 +19,27 @@ import com.facebook.common.references.ResourceReleaser;
  */
 public class GingerbreadBitmapFactory {
 
-  private final ResourceReleaser<Bitmap> mBitmapResourceReleaser;
+    private final ResourceReleaser<Bitmap> mBitmapResourceReleaser;
 
-  public GingerbreadBitmapFactory() {
-    mBitmapResourceReleaser = new ResourceReleaser<Bitmap>() {
-      @Override
-      public void release(Bitmap value) {
-        value.recycle();
-      }
-    };
-  }
+    public GingerbreadBitmapFactory() {
+        mBitmapResourceReleaser = new ResourceReleaser<Bitmap>() {
+            @Override
+            public void release(Bitmap value) {
+                value.recycle();
+            }
+        };
+    }
 
-  /**
-   * Creates a bitmap of the specified width and height.
-   *
-   * @param width the width of the bitmap
-   * @param height the height of the bitmap
-   * @return a reference to the bitmap
-   * @throws java.lang.OutOfMemoryError if the Bitmap cannot be allocated
-   */
-  CloseableReference<Bitmap> createBitmap(int width, int height) {
-    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-    return CloseableReference.of(bitmap, mBitmapResourceReleaser);
-  }
+    /**
+     * Creates a bitmap of the specified width and height.
+     *
+     * @param width  the width of the bitmap
+     * @param height the height of the bitmap
+     * @return a reference to the bitmap
+     * @throws java.lang.OutOfMemoryError if the Bitmap cannot be allocated
+     */
+    CloseableReference<Bitmap> createBitmap(int width, int height) {
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        return CloseableReference.of(bitmap, mBitmapResourceReleaser);
+    }
 }

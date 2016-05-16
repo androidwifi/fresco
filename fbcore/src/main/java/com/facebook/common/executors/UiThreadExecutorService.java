@@ -19,16 +19,16 @@ import java.util.concurrent.ExecutorService;
  */
 public class UiThreadExecutorService extends HandlerExecutorServiceImpl {
 
-  private static UiThreadExecutorService sInstance = null;
+    private static UiThreadExecutorService sInstance = null;
 
-  private UiThreadExecutorService() {
-    super(new Handler(Looper.getMainLooper()));
-  }
-
-  public static UiThreadExecutorService getInstance() {
-    if (sInstance == null) {
-      sInstance = new UiThreadExecutorService();
+    private UiThreadExecutorService() {
+        super(new Handler(Looper.getMainLooper()));
     }
-    return sInstance;
-  }
+
+    public static UiThreadExecutorService getInstance() {
+        if (sInstance == null) {
+            sInstance = new UiThreadExecutorService();
+        }
+        return sInstance;
+    }
 }

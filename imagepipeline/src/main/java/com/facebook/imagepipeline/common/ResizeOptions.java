@@ -16,49 +16,49 @@ import com.facebook.common.util.HashCodeUtil;
 
 /**
  * Options for resizing.
- *
+ * <p>
  * <p> Describes the target bounds for the image (width, height) in pixels, as well as the
  * downscaling policy to employ.
  */
 public class ResizeOptions {
 
-  /* target width (in pixels) */
-  public final int width;
+    /* target width (in pixels) */
+    public final int width;
 
-  /* target height (in pixels) */
-  public final int height;
+    /* target height (in pixels) */
+    public final int height;
 
-  public ResizeOptions(
-      int width,
-      int height) {
-    Preconditions.checkArgument(width > 0);
-    Preconditions.checkArgument(height > 0);
-    this.width = width;
-    this.height = height;
-  }
-
-  @Override
-  public int hashCode() {
-    return HashCodeUtil.hashCode(
-        width,
-        height);
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == this) {
-      return true;
+    public ResizeOptions(
+            int width,
+            int height) {
+        Preconditions.checkArgument(width > 0);
+        Preconditions.checkArgument(height > 0);
+        this.width = width;
+        this.height = height;
     }
-    if (!(other instanceof ResizeOptions)) {
-      return false;
-    }
-    ResizeOptions that = (ResizeOptions) other;
-    return this.width == that.width &&
-        this.height == that.height;
-  }
 
-  @Override
-  public String toString() {
-    return String.format((Locale) null, "%dx%d", width, height);
-  }
+    @Override
+    public int hashCode() {
+        return HashCodeUtil.hashCode(
+                width,
+                height);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof ResizeOptions)) {
+            return false;
+        }
+        ResizeOptions that = (ResizeOptions) other;
+        return this.width == that.width &&
+                this.height == that.height;
+    }
+
+    @Override
+    public String toString() {
+        return String.format((Locale) null, "%dx%d", width, height);
+    }
 }

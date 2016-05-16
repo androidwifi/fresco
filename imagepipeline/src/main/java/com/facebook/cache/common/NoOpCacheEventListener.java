@@ -13,40 +13,40 @@ package com.facebook.cache.common;
  * Implementation of {@link CacheEventListener} that doesn't do anything.
  */
 public class NoOpCacheEventListener implements CacheEventListener {
-  private static NoOpCacheEventListener sInstance = null;
+    private static NoOpCacheEventListener sInstance = null;
 
-  private NoOpCacheEventListener() {
-  }
-
-  public static synchronized NoOpCacheEventListener getInstance() {
-    if (sInstance == null) {
-      sInstance = new NoOpCacheEventListener();
+    private NoOpCacheEventListener() {
     }
-    return sInstance;
-  }
 
-  @Override
-  public void onHit() {
+    public static synchronized NoOpCacheEventListener getInstance() {
+        if (sInstance == null) {
+            sInstance = new NoOpCacheEventListener();
+        }
+        return sInstance;
+    }
 
-  }
+    @Override
+    public void onHit() {
 
-  @Override
-  public void onMiss() {
-  }
+    }
 
-  @Override
-  public void onWriteAttempt() {
-  }
+    @Override
+    public void onMiss() {
+    }
 
-  @Override
-  public void onReadException() {
-  }
+    @Override
+    public void onWriteAttempt() {
+    }
 
-  @Override
-  public void onWriteException() {
-  }
+    @Override
+    public void onReadException() {
+    }
 
-  @Override
-  public void onEviction(EvictionReason evictionReason, int itemCount, long itemSize) {
-  }
+    @Override
+    public void onWriteException() {
+    }
+
+    @Override
+    public void onEviction(EvictionReason evictionReason, int itemCount, long itemSize) {
+    }
 }

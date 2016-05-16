@@ -37,35 +37,35 @@ package com.facebook.datasource;
  */
 public abstract class BaseDataSubscriber<T> implements DataSubscriber<T> {
 
-  @Override
-  public void onNewResult(DataSource<T> dataSource) {
-    try {
-      onNewResultImpl(dataSource);
-    } finally {
-      if (dataSource.isFinished()) {
-        dataSource.close();
-      }
+    @Override
+    public void onNewResult(DataSource<T> dataSource) {
+        try {
+            onNewResultImpl(dataSource);
+        } finally {
+            if (dataSource.isFinished()) {
+                dataSource.close();
+            }
+        }
     }
-  }
 
-  @Override
-  public void onFailure(DataSource<T> dataSource) {
-    try {
-      onFailureImpl(dataSource);
-    } finally {
-      dataSource.close();
+    @Override
+    public void onFailure(DataSource<T> dataSource) {
+        try {
+            onFailureImpl(dataSource);
+        } finally {
+            dataSource.close();
+        }
     }
-  }
 
-  @Override
-  public void onCancellation(DataSource<T> dataSource) {
-  }
+    @Override
+    public void onCancellation(DataSource<T> dataSource) {
+    }
 
-  @Override
-  public void onProgressUpdate(DataSource<T> dataSource) {
-  }
+    @Override
+    public void onProgressUpdate(DataSource<T> dataSource) {
+    }
 
-  protected abstract void onNewResultImpl(DataSource<T> dataSource);
+    protected abstract void onNewResultImpl(DataSource<T> dataSource);
 
-  protected abstract void onFailureImpl(DataSource<T> dataSource);
+    protected abstract void onFailureImpl(DataSource<T> dataSource);
 }

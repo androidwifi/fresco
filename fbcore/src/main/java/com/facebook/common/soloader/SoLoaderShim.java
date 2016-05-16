@@ -16,52 +16,52 @@ import com.facebook.common.internal.Preconditions;
  */
 public class SoLoaderShim {
 
-  /**
-   * Handler that can be overridden by the application.
-   */
-  public interface Handler {
+    /**
+     * Handler that can be overridden by the application.
+     */
+    public interface Handler {
 
-    void loadLibrary(String libraryName);
-  }
-
-  /**
-   * Default handler for loading libraries.
-   */
-  public static class DefaultHandler implements Handler {
-
-    @Override
-    public void loadLibrary(String libraryName) {
-      System.loadLibrary(libraryName);
+        void loadLibrary(String libraryName);
     }
-  }
 
-  private static volatile Handler sHandler = new DefaultHandler();
+    /**
+     * Default handler for loading libraries.
+     */
+    public static class DefaultHandler implements Handler {
 
-  /**
-   * Sets the handler.
-   *
-   * @param handler the new handler
-   */
-  public static void setHandler(Handler handler) {
-    Preconditions.checkNotNull(handler);
-    sHandler = handler;
-  }
+        @Override
+        public void loadLibrary(String libraryName) {
+            System.loadLibrary(libraryName);
+        }
+    }
 
-  /**
-   * See {@link Runtime#loadLibrary}.
-   *
-   * @param libraryName the library to load
-   */
-  public static void loadLibrary(String libraryName) {
-    sHandler.loadLibrary(libraryName);
-  }
+    private static volatile Handler sHandler = new DefaultHandler();
 
-  public static void setInTestMode() {
-    setHandler(
-        new Handler() {
-          @Override
-          public void loadLibrary(String libraryName) {
-          }
-        });
-  }
+    /**
+     * Sets the handler.
+     *
+     * @param handler the new handler
+     */
+    public static void setHandler(Handler handler) {
+        Preconditions.checkNotNull(handler);
+        sHandler = handler;
+    }
+
+    /**
+     * See {@link Runtime#loadLibrary}.
+     *
+     * @param libraryName the library to load
+     */
+    public static void loadLibrary(String libraryName) {
+        sHandler.loadLibrary(libraryName);
+    }
+
+    public static void setInTestMode() {
+        setHandler(
+                new Handler() {
+                    @Override
+                    public void loadLibrary(String libraryName) {
+                    }
+                });
+    }
 }

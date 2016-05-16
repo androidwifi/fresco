@@ -18,55 +18,68 @@ import com.facebook.imagepipeline.core.ImagePipelineFactory;
 
 /**
  * Fresco entry point.
- *
+ * <p>
  * <p/> You must initialize this class before use. The simplest way is to just do
  * {#code Fresco.initialize(Context)}.
  */
 public class Fresco {
-  private static PipelineDraweeControllerBuilderSupplier sDraweeControllerBuilderSupplier;
+    private static PipelineDraweeControllerBuilderSupplier sDraweeControllerBuilderSupplier;
 
-  private Fresco() {}
+    private Fresco() {
+    }
 
-  /** Initializes Fresco with the default config. */
-  public static void initialize(Context context) {
-    ImagePipelineFactory.initialize(context);
-    initializeDrawee(context);
-  }
+    /**
+     * Initializes Fresco with the default config.
+     */
+    public static void initialize(Context context) {
+        ImagePipelineFactory.initialize(context);
+        initializeDrawee(context);
+    }
 
-  /** Initializes Fresco with the specified config. */
-  public static void initialize(Context context, ImagePipelineConfig imagePipelineConfig) {
-    ImagePipelineFactory.initialize(imagePipelineConfig);
-    initializeDrawee(context);
-  }
+    /**
+     * Initializes Fresco with the specified config.
+     */
+    public static void initialize(Context context, ImagePipelineConfig imagePipelineConfig) {
+        ImagePipelineFactory.initialize(imagePipelineConfig);
+        initializeDrawee(context);
+    }
 
-  private static void initializeDrawee(Context context) {
-    sDraweeControllerBuilderSupplier = new PipelineDraweeControllerBuilderSupplier(context);
-    SimpleDraweeView.initialize(sDraweeControllerBuilderSupplier);
-  }
+    private static void initializeDrawee(Context context) {
+        sDraweeControllerBuilderSupplier = new PipelineDraweeControllerBuilderSupplier(context);
+        SimpleDraweeView.initialize(sDraweeControllerBuilderSupplier);
+    }
 
-  /** Gets the supplier of Fresco Drawee controller builders. */
-  public static PipelineDraweeControllerBuilderSupplier getDraweeControllerBuilderSupplier() {
-    return sDraweeControllerBuilderSupplier;
-  }
+    /**
+     * Gets the supplier of Fresco Drawee controller builders.
+     */
+    public static PipelineDraweeControllerBuilderSupplier getDraweeControllerBuilderSupplier() {
+        return sDraweeControllerBuilderSupplier;
+    }
 
-  /** Returns a new instance of Fresco Drawee controller builder. */
-  public static PipelineDraweeControllerBuilder newDraweeControllerBuilder() {
-    return sDraweeControllerBuilderSupplier.get();
-  }
+    /**
+     * Returns a new instance of Fresco Drawee controller builder.
+     */
+    public static PipelineDraweeControllerBuilder newDraweeControllerBuilder() {
+        return sDraweeControllerBuilderSupplier.get();
+    }
 
-  public static ImagePipelineFactory getImagePipelineFactory() {
-    return ImagePipelineFactory.getInstance();
-  }
+    public static ImagePipelineFactory getImagePipelineFactory() {
+        return ImagePipelineFactory.getInstance();
+    }
 
-  /** Gets the image pipeline instance. */
-  public static ImagePipeline getImagePipeline() {
-    return getImagePipelineFactory().getImagePipeline();
-  }
+    /**
+     * Gets the image pipeline instance.
+     */
+    public static ImagePipeline getImagePipeline() {
+        return getImagePipelineFactory().getImagePipeline();
+    }
 
-  /** Shuts Fresco down. */
-  public static void shutDown() {
-    sDraweeControllerBuilderSupplier = null;
-    SimpleDraweeView.shutDown();
-    ImagePipelineFactory.shutDown();
-  }
+    /**
+     * Shuts Fresco down.
+     */
+    public static void shutDown() {
+        sDraweeControllerBuilderSupplier = null;
+        SimpleDraweeView.shutDown();
+        ImagePipelineFactory.shutDown();
+    }
 }

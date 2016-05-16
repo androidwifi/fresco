@@ -24,112 +24,113 @@ import com.facebook.common.references.ResourceReleaser;
 @ThreadSafe
 public class CloseableStaticBitmap extends CloseableBitmap {
 
-  @GuardedBy("this")
-  private CloseableReference<Bitmap> mBitmapReference;
+    @GuardedBy("this")
+    private CloseableReference<Bitmap> mBitmapReference;
 
-  private volatile Bitmap mBitmap;
+    private volatile Bitmap mBitmap;
 
-  // quality info
-  private final QualityInfo mQualityInfo;
+    // quality info
+    private final QualityInfo mQualityInfo;
 
 
-  /**
-   * Creates a new instance of a CloseableStaticBitmap.
-   *
-   * @param bitmap the bitmap to wrap
-   * @param resourceReleaser ResourceReleaser to release the bitmap to
-   */
-  public CloseableStaticBitmap(
-      Bitmap bitmap,
-      ResourceReleaser<Bitmap> resourceReleaser,
-      QualityInfo qualityInfo) {
-    mBitmap = Preconditions.checkNotNull(bitmap);
-    mBitmapReference = CloseableReference.of(
-        mBitmap,
-        Preconditions.checkNotNull(resourceReleaser));
-    mQualityInfo = qualityInfo;
-  }
-
-  /**
-   * Creates a new instance of a CloseableStaticBitmap from an existing CloseableReference. The
-   * CloseableStaticBitmap will hold a reference to the Bitmap until it's closed.
-   *
-   * @param bitmapReference the bitmap reference.
-   */
-  public CloseableStaticBitmap(
-      CloseableReference<Bitmap> bitmapReference,
-      QualityInfo qualityInfo) {
-    mBitmapReference = Preconditions.checkNotNull(bitmapReference.cloneOrNull());
-    mBitmap = mBitmapReference.get();
-    mQualityInfo = qualityInfo;
-  }
-
-  /**
-   * Releases the bitmap to the pool.
-   */
-  @Override
-  public void close() {
-    CloseableReference<Bitmap> reference;
-    synchronized (this) {
-      if (mBitmapReference == null) {
-        return;
-      }
-      reference = mBitmapReference;
-      mBitmapReference = null;
-      mBitmap = null;
+    /**
+     * Creates a new instance of a CloseableStaticBitmap.
+     *
+     * @param bitmap           the bitmap to wrap
+     * @param resourceReleaser ResourceReleaser to release the bitmap to
+     */
+    public CloseableStaticBitmap(
+            Bitmap bitmap,
+            ResourceReleaser<Bitmap> resourceReleaser,
+            QualityInfo qualityInfo) {
+        mBitmap = Preconditions.checkNotNull(bitmap);
+        mBitmapReference = CloseableReference.of(
+                mBitmap,
+                Preconditions.checkNotNull(resourceReleaser));
+        mQualityInfo = qualityInfo;
     }
-    reference.close();
-  }
 
-  /**
-   * Returns whether this instance is closed.
-   */
-  @Override
-  public synchronized boolean isClosed() {
-    return mBitmapReference == null;
-  }
+    /**
+     * Creates a new instance of a CloseableStaticBitmap from an existing CloseableReference. The
+     * CloseableStaticBitmap will hold a reference to the Bitmap until it's closed.
+     *
+     * @param bitmapReference the bitmap reference.
+     */
+    public CloseableStaticBitmap(
+            CloseableReference<Bitmap> bitmapReference,
+            QualityInfo qualityInfo) {
+        mBitmapReference = Preconditions.checkNotNull(bitmapReference.cloneOrNull());
+        mBitmap = mBitmapReference.get();
+        mQualityInfo = qualityInfo;
+    }
 
-  /**
-   * Gets the underlying bitmap.
-   * @return the underlying bitmap
-   */
-  @Override
-  public Bitmap getUnderlyingBitmap() {
-    return mBitmap;
-  }
+    /**
+     * Releases the bitmap to the pool.
+     */
+    @Override
+    public void close() {
+        CloseableReference<Bitmap> reference;
+        synchronized (this) {
+            if (mBitmapReference == null) {
+                return;
+            }
+            reference = mBitmapReference;
+            mBitmapReference = null;
+            mBitmap = null;
+        }
+        reference.close();
+    }
 
-  /**
-   * @return size in bytes of the underlying bitmap
-   */
-  @Override
-  public int getSizeInBytes() {
-    Bitmap bitmap = mBitmap;
-    return (bitmap == null) ? 0 : bitmap.getHeight() * bitmap.getRowBytes();
-  }
+    /**
+     * Returns whether this instance is closed.
+     */
+    @Override
+    public synchronized boolean isClosed() {
+        return mBitmapReference == null;
+    }
 
-  /**
-   * @return width of the image
-   */
-  @Override
-  public int getWidth() {
-    Bitmap bitmap = mBitmap;
-    return (bitmap == null) ? 0 : bitmap.getWidth();
-  }
+    /**
+     * Gets the underlying bitmap.
+     *
+     * @return the underlying bitmap
+     */
+    @Override
+    public Bitmap getUnderlyingBitmap() {
+        return mBitmap;
+    }
 
-  /**
-   * @return height of the image
-   */
-  @Override
-  public int getHeight() {
-    Bitmap bitmap = mBitmap;
-    return (bitmap == null) ? 0 : bitmap.getHeight();
-  }
+    /**
+     * @return size in bytes of the underlying bitmap
+     */
+    @Override
+    public int getSizeInBytes() {
+        Bitmap bitmap = mBitmap;
+        return (bitmap == null) ? 0 : bitmap.getHeight() * bitmap.getRowBytes();
+    }
 
-  /**
-   * Returns quality information for the image.
-   */
-  @Override
-  public QualityInfo getQualityInfo() {
-    return mQualityInfo;
-  }
+    /**
+     * @return width of the image
+     */
+    @Override
+    public int getWidth() {
+        Bitmap bitmap = mBitmap;
+        return (bitmap == null) ? 0 : bitmap.getWidth();
+    }
+
+    /**
+     * @return height of the image
+     */
+    @Override
+    public int getHeight() {
+        Bitmap bitmap = mBitmap;
+        return (bitmap == null) ? 0 : bitmap.getHeight();
+    }
+
+    /**
+     * Returns quality information for the image.
+     */
+    @Override
+    public QualityInfo getQualityInfo() {
+        return mQualityInfo;
+    }
 }

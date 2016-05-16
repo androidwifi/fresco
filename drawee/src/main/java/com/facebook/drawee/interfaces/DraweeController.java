@@ -21,35 +21,41 @@ import android.view.MotionEvent;
  */
 public interface DraweeController {
 
-  /** Gets the hierarchy. */
-  @Nullable
-  public DraweeHierarchy getHierarchy();
+    /**
+     * Gets the hierarchy.
+     */
+    @Nullable
+    public DraweeHierarchy getHierarchy();
 
-  /** Sets a new hierarchy. */
-  void setHierarchy(@Nullable DraweeHierarchy hierarchy);
+    /**
+     * Sets a new hierarchy.
+     */
+    void setHierarchy(@Nullable DraweeHierarchy hierarchy);
 
-  /**
-   * Called when the view containing the hierarchy is attached to a window
-   * (either temporarily or permanently).
-   */
-  public void onAttach();
+    /**
+     * Called when the view containing the hierarchy is attached to a window
+     * (either temporarily or permanently).
+     */
+    public void onAttach();
 
-  /**
-   * Called when the view containing the hierarchy is detached from a window
-   * (either temporarily or permanently).
-   */
-  public void onDetach();
+    /**
+     * Called when the view containing the hierarchy is detached from a window
+     * (either temporarily or permanently).
+     */
+    public void onDetach();
 
-  /**
-   * Called when the view containing the hierarchy receives a touch event.
-   * @return true if the event was handled by the controller, false otherwise
-   */
-  public boolean onTouchEvent(MotionEvent event);
+    /**
+     * Called when the view containing the hierarchy receives a touch event.
+     *
+     * @return true if the event was handled by the controller, false otherwise
+     */
+    public boolean onTouchEvent(MotionEvent event);
 
-  /**
-   * For an animated image, returns an Animatable that lets clients control the animation.
-   * @return animatable, or null if the image is not animated or not loaded yet
-   */
-  public Animatable getAnimatable();
+    /**
+     * For an animated image, returns an Animatable that lets clients control the animation.
+     *
+     * @return animatable, or null if the image is not animated or not loaded yet
+     */
+    public Animatable getAnimatable();
 
 }

@@ -20,20 +20,20 @@ import static org.mockito.Mockito.*;
 
 @RunWith(WithTestDefaultsRunner.class)
 public class DataSourcesTest {
-  private Exception mException;
+    private Exception mException;
 
-  @Before
-  public void setUp() {
-    mException = mock(Exception.class);
-  }
+    @Before
+    public void setUp() {
+        mException = mock(Exception.class);
+    }
 
-  @Test
-  public void testImmediateFailedDataSource() {
-    DataSource<?> dataSource = DataSources.immediateFailedDataSource(mException);
-    assertTrue(dataSource.isFinished());
-    assertTrue(dataSource.hasFailed());
-    assertEquals(mException, dataSource.getFailureCause());
-    assertFalse(dataSource.hasResult());
-    assertFalse(dataSource.isClosed());
-  }
+    @Test
+    public void testImmediateFailedDataSource() {
+        DataSource<?> dataSource = DataSources.immediateFailedDataSource(mException);
+        assertTrue(dataSource.isFinished());
+        assertTrue(dataSource.hasFailed());
+        assertEquals(mException, dataSource.getFailureCause());
+        assertFalse(dataSource.hasResult());
+        assertFalse(dataSource.isClosed());
+    }
 }

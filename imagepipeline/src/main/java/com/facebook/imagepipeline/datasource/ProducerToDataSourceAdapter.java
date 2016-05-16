@@ -23,22 +23,22 @@ import com.facebook.imagepipeline.listener.RequestListener;
  */
 @ThreadSafe
 public class ProducerToDataSourceAdapter<T>
-    extends AbstractProducerToDataSourceAdapter<T> {
+        extends AbstractProducerToDataSourceAdapter<T> {
 
-  public static <T> DataSource<T> create(
-      Producer<T> producer,
-      SettableProducerContext settableProducerContext,
-      RequestListener listener) {
-    return new ProducerToDataSourceAdapter<T>(
-        producer,
-        settableProducerContext,
-        listener);
-  }
+    public static <T> DataSource<T> create(
+            Producer<T> producer,
+            SettableProducerContext settableProducerContext,
+            RequestListener listener) {
+        return new ProducerToDataSourceAdapter<T>(
+                producer,
+                settableProducerContext,
+                listener);
+    }
 
-  private ProducerToDataSourceAdapter(
-      Producer<T> producer,
-      SettableProducerContext settableProducerContext,
-      RequestListener listener) {
-    super(producer, settableProducerContext, listener);
-  }
+    private ProducerToDataSourceAdapter(
+            Producer<T> producer,
+            SettableProducerContext settableProducerContext,
+            RequestListener listener) {
+        super(producer, settableProducerContext, listener);
+    }
 }

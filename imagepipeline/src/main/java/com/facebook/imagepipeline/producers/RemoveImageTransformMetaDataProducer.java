@@ -16,41 +16,41 @@ import com.facebook.imagepipeline.memory.PooledByteBuffer;
 
 /**
  * Remove image transform meta data producer
- *
+ * <p>
  * <p>Remove the {@link ImageTransformMetaData} object from the results passed down from the next
  * producer, and adds it to the result that it returns to the consumer.
  */
 public class RemoveImageTransformMetaDataProducer
-    implements Producer<CloseableReference<PooledByteBuffer>> {
-  private final Producer<
-      Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>> mNextProducer;
+        implements Producer<CloseableReference<PooledByteBuffer>> {
+    private final Producer<
+            Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>> mNextProducer;
 
-  public RemoveImageTransformMetaDataProducer(
-      Producer<Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>> nextProducer) {
-    mNextProducer = nextProducer;
-  }
-
-  @Override
-  public void produceResults(
-      Consumer<CloseableReference<PooledByteBuffer>> consumer,
-      ProducerContext context) {
-    mNextProducer.produceResults(new RemoveImageTransformMetaDataConsumer(consumer), context);
-  }
-
-  private class RemoveImageTransformMetaDataConsumer extends DelegatingConsumer<
-      Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>,
-      CloseableReference<PooledByteBuffer>> {
-
-    private RemoveImageTransformMetaDataConsumer(
-        Consumer<CloseableReference<PooledByteBuffer>> consumer) {
-      super(consumer);
+    public RemoveImageTransformMetaDataProducer(
+            Producer<Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>> nextProducer) {
+        mNextProducer = nextProducer;
     }
 
     @Override
-    protected void onNewResultImpl(
-        Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData> newResult,
-        boolean isLast) {
-      getConsumer().onNewResult(newResult == null ? null : newResult.first, isLast);
+    public void produceResults(
+            Consumer<CloseableReference<PooledByteBuffer>> consumer,
+            ProducerContext context) {
+        mNextProducer.produceResults(new RemoveImageTransformMetaDataConsumer(consumer), context);
     }
-  }
+
+    private class RemoveImageTransformMetaDataConsumer extends DelegatingConsumer<
+            Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>,
+            CloseableReference<PooledByteBuffer>> {
+
+        private RemoveImageTransformMetaDataConsumer(
+                Consumer<CloseableReference<PooledByteBuffer>> consumer) {
+            super(consumer);
+        }
+
+        @Override
+        protected void onNewResultImpl(
+                Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData> newResult,
+                boolean isLast) {
+            getConsumer().onNewResult(newResult == null ? null : newResult.first, isLast);
+        }
+    }
 }

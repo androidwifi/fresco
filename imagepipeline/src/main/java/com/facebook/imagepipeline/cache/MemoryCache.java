@@ -23,35 +23,35 @@ import com.android.internal.util.Predicate;
  */
 public interface MemoryCache<K, V> {
 
-  /**
-   * Caches the the given key-value pair.
-   *
-   * <p> The cache returns a new copy of the provided reference which should be used instead of the
-   * original one. The client should close the returned reference when it is not required anymore.
-   *
-   * <p> If the cache failed to cache the given value, then the null reference is returned.
-   *
-   * @param key
-   * @param value
-   * @return a new reference to be used, or null if the caching failed
-   */
-  @Nullable
-  public CloseableReference<V> cache(K key, CloseableReference<V> value);
+    /**
+     * Caches the the given key-value pair.
+     * <p>
+     * <p> The cache returns a new copy of the provided reference which should be used instead of the
+     * original one. The client should close the returned reference when it is not required anymore.
+     * <p>
+     * <p> If the cache failed to cache the given value, then the null reference is returned.
+     *
+     * @param key
+     * @param value
+     * @return a new reference to be used, or null if the caching failed
+     */
+    @Nullable
+    public CloseableReference<V> cache(K key, CloseableReference<V> value);
 
-  /**
-   * Gets the item with the given key, or null if there is no such item.
-   *
-   * @param key
-   * @return a reference to the cached value, or null if the item was not found
-   */
-  @Nullable
-  public CloseableReference<V> get(K key);
+    /**
+     * Gets the item with the given key, or null if there is no such item.
+     *
+     * @param key
+     * @return a reference to the cached value, or null if the item was not found
+     */
+    @Nullable
+    public CloseableReference<V> get(K key);
 
-  /**
-   * Removes all the items from the cache whose keys match the specified predicate.
-   *
-   * @param predicate returns true if an item with the given key should be removed
-   * @return number of the items removed from the cache
-   */
-  public int removeAll(Predicate<K> predicate);
+    /**
+     * Removes all the items from the cache whose keys match the specified predicate.
+     *
+     * @param predicate returns true if an item with the given key should be removed
+     * @return number of the items removed from the cache
+     */
+    public int removeAll(Predicate<K> predicate);
 }

@@ -20,22 +20,22 @@ import com.facebook.imagepipeline.request.ImageRequest;
  * Multiplex producer that uses the bitmap memory cache key to combine requests.
  */
 public class BitmapMemoryCacheKeyMultiplexProducer extends
-    MultiplexProducer<Pair<CacheKey, ImageRequest.RequestLevel>, CloseableImage> {
+        MultiplexProducer<Pair<CacheKey, ImageRequest.RequestLevel>, CloseableImage> {
 
-  private final CacheKeyFactory mCacheKeyFactory;
+    private final CacheKeyFactory mCacheKeyFactory;
 
-  public BitmapMemoryCacheKeyMultiplexProducer(
-      CacheKeyFactory cacheKeyFactory,
-      Producer nextProducer) {
-    super(nextProducer);
-    mCacheKeyFactory = cacheKeyFactory;
-  }
+    public BitmapMemoryCacheKeyMultiplexProducer(
+            CacheKeyFactory cacheKeyFactory,
+            Producer nextProducer) {
+        super(nextProducer);
+        mCacheKeyFactory = cacheKeyFactory;
+    }
 
-  protected Pair<CacheKey, ImageRequest.RequestLevel> getKey(
-      ProducerContext producerContext) {
-    return Pair.create(
-        mCacheKeyFactory.getBitmapCacheKey(producerContext.getImageRequest()),
-        producerContext.getLowestPermittedRequestLevel());
-  }
+    protected Pair<CacheKey, ImageRequest.RequestLevel> getKey(
+            ProducerContext producerContext) {
+        return Pair.create(
+                mCacheKeyFactory.getBitmapCacheKey(producerContext.getImageRequest()),
+                producerContext.getLowestPermittedRequestLevel());
+    }
 
 }

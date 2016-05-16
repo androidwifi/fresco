@@ -22,7 +22,7 @@ import com.facebook.common.references.CloseableReference;
 
 /**
  * Implementation of {@link DataSubscriber} for cases where the client wants access to a bitmap.
- *
+ * <p>
  * <p>
  * Sample usage:
  * <pre>
@@ -45,34 +45,35 @@ import com.facebook.common.references.CloseableReference;
  * </pre>
  */
 public abstract class BaseBitmapDataSubscriber extends
-    BaseDataSubscriber<CloseableReference<CloseableImage>> {
+        BaseDataSubscriber<CloseableReference<CloseableImage>> {
 
-  @Override
-  public void onNewResultImpl(DataSource<CloseableReference<CloseableImage>> dataSource) {
-    if (!dataSource.isFinished()) {
-      return;
+    @Override
+    public void onNewResultImpl(DataSource<CloseableReference<CloseableImage>> dataSource) {
+        if (!dataSource.isFinished()) {
+            return;
+        }
+
+        CloseableReference<CloseableImage> closeableImageRef = dataSource.getResult();
+        Bitmap bitmap = null;
+        if (closeableImageRef != null &&
+                closeableImageRef.get() instanceof CloseableBitmap) {
+            bitmap = ((CloseableBitmap) closeableImageRef.get()).getUnderlyingBitmap();
+        }
+
+        try {
+            onNewResultImpl(bitmap);
+        } finally {
+            CloseableReference.closeSafely(closeableImageRef);
+        }
     }
 
-    CloseableReference<CloseableImage> closeableImageRef = dataSource.getResult();
-    Bitmap bitmap = null;
-    if (closeableImageRef != null &&
-        closeableImageRef.get() instanceof CloseableBitmap) {
-      bitmap = ((CloseableBitmap) closeableImageRef.get()).getUnderlyingBitmap();
-    }
-
-    try {
-      onNewResultImpl(bitmap);
-    } finally {
-      CloseableReference.closeSafely(closeableImageRef);
-    }
-  }
-
-  /**
-   * The bitmap provided to this method is only guaranteed to be around for the lifespan of the
-   * method.
-   *
-   * <p>The framework will free the bitmap's memory after this method has completed.
-   * @param bitmap
-   */
-  protected abstract void onNewResultImpl(@Nullable Bitmap bitmap);
+    /**
+     * The bitmap provided to this method is only guaranteed to be around for the lifespan of the
+     * method.
+     * <p>
+     * <p>The framework will free the bitmap's memory after this method has completed.
+     *
+     * @param bitmap
+     */
+    protected abstract void onNewResultImpl(@Nullable Bitmap bitmap);
 }

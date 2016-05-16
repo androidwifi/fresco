@@ -25,7 +25,6 @@ apply from: rootProject.file('release.gradle')
 
 def generatedTestSources = "$buildDir/generated-src/test"
 
-
 // Gradle and Buck need different versions of the test runner.
 // For gradle, WithTestDefaultsRunner just is a direct sub-class of RobolectricTestRunner.
 task generateTestSources {

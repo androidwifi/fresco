@@ -14,28 +14,28 @@ package com.facebook.cache.disk;
  */
 public class DiskCacheFactory {
 
-  /**
-   * Creates a new {@link DiskStorageCache} from the given {@link DiskCacheConfig}
-   */
-  public static DiskStorageCache newDiskStorageCache(DiskCacheConfig diskCacheConfig) {
-    DiskStorageSupplier diskStorageSupplier = newDiskStorageSupplier(diskCacheConfig);
-    DiskStorageCache.Params params = new DiskStorageCache.Params(
-        diskCacheConfig.getMinimumSizeLimit(),
-        diskCacheConfig.getLowDiskSpaceSizeLimit(),
-        diskCacheConfig.getDefaultSizeLimit());
-    return new DiskStorageCache(
-        diskStorageSupplier,
-        params,
-        diskCacheConfig.getCacheEventListener(),
-        diskCacheConfig.getCacheErrorLogger(),
-        diskCacheConfig.getDiskTrimmableRegistry());
-  }
+    /**
+     * Creates a new {@link DiskStorageCache} from the given {@link DiskCacheConfig}
+     */
+    public static DiskStorageCache newDiskStorageCache(DiskCacheConfig diskCacheConfig) {
+        DiskStorageSupplier diskStorageSupplier = newDiskStorageSupplier(diskCacheConfig);
+        DiskStorageCache.Params params = new DiskStorageCache.Params(
+                diskCacheConfig.getMinimumSizeLimit(),
+                diskCacheConfig.getLowDiskSpaceSizeLimit(),
+                diskCacheConfig.getDefaultSizeLimit());
+        return new DiskStorageCache(
+                diskStorageSupplier,
+                params,
+                diskCacheConfig.getCacheEventListener(),
+                diskCacheConfig.getCacheErrorLogger(),
+                diskCacheConfig.getDiskTrimmableRegistry());
+    }
 
-  private static DiskStorageSupplier newDiskStorageSupplier(DiskCacheConfig diskCacheConfig) {
-    return new DefaultDiskStorageSupplier(
-        diskCacheConfig.getVersion(),
-        diskCacheConfig.getBaseDirectoryPathSupplier(),
-        diskCacheConfig.getBaseDirectoryName(),
-        diskCacheConfig.getCacheErrorLogger());
-  }
+    private static DiskStorageSupplier newDiskStorageSupplier(DiskCacheConfig diskCacheConfig) {
+        return new DefaultDiskStorageSupplier(
+                diskCacheConfig.getVersion(),
+                diskCacheConfig.getBaseDirectoryPathSupplier(),
+                diskCacheConfig.getBaseDirectoryName(),
+                diskCacheConfig.getCacheErrorLogger());
+    }
 }

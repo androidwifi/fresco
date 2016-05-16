@@ -23,28 +23,28 @@ import static org.mockito.Mockito.*;
  * A 'fake' {@link NativeMemoryChunkPool} instance as a test helper
  */
 public class FakeNativeMemoryChunkPool extends NativeMemoryChunkPool {
-  public FakeNativeMemoryChunkPool() {
-    this(new PoolParams(128, getBucketSizes()));
-  }
+    public FakeNativeMemoryChunkPool() {
+        this(new PoolParams(128, getBucketSizes()));
+    }
 
-  public FakeNativeMemoryChunkPool(PoolParams poolParams) {
-    super(
-        mock(MemoryTrimmableRegistry.class),
-        poolParams,
-        mock(PoolStatsTracker.class));
-  }
+    public FakeNativeMemoryChunkPool(PoolParams poolParams) {
+        super(
+                mock(MemoryTrimmableRegistry.class),
+                poolParams,
+                mock(PoolStatsTracker.class));
+    }
 
-  @Override
-  protected NativeMemoryChunk alloc(int bucketedSize) {
-    return new FakeNativeMemoryChunk(bucketedSize);
-  }
+    @Override
+    protected NativeMemoryChunk alloc(int bucketedSize) {
+        return new FakeNativeMemoryChunk(bucketedSize);
+    }
 
-  private static SparseIntArray getBucketSizes() {
-    final SparseIntArray bucketSizes = new SparseIntArray();
-    bucketSizes.put(4, 10);
-    bucketSizes.put(8, 10);
-    bucketSizes.put(16, 10);
-    bucketSizes.put(32, 10);
-    return bucketSizes;
-  }
+    private static SparseIntArray getBucketSizes() {
+        final SparseIntArray bucketSizes = new SparseIntArray();
+        bucketSizes.put(4, 10);
+        bucketSizes.put(8, 10);
+        bucketSizes.put(16, 10);
+        bucketSizes.put(32, 10);
+        return bucketSizes;
+    }
 }

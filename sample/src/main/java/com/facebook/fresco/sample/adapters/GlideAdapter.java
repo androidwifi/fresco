@@ -19,39 +19,41 @@ import com.facebook.fresco.sample.Drawables;
 import com.facebook.fresco.sample.instrumentation.InstrumentedImageView;
 import com.facebook.fresco.sample.instrumentation.PerfListener;
 
-/** Populate the list view with images using the Glide library. */
+/**
+ * Populate the list view with images using the Glide library.
+ */
 public class GlideAdapter extends ImageListAdapter<InstrumentedImageView> {
 
-  private final Context mContext;
+    private final Context mContext;
 
-  public GlideAdapter(Context context, int resourceId, PerfListener perfListener) {
-    super(context, resourceId, perfListener);
-    mContext = context;
-  }
+    public GlideAdapter(Context context, int resourceId, PerfListener perfListener) {
+        super(context, resourceId, perfListener);
+        mContext = context;
+    }
 
-  @Override
-  protected Class<InstrumentedImageView> getViewClass() {
-    return InstrumentedImageView.class;
-  }
+    @Override
+    protected Class<InstrumentedImageView> getViewClass() {
+        return InstrumentedImageView.class;
+    }
 
-  @Override
-  protected InstrumentedImageView createView() {
-    return new InstrumentedImageView(getContext());
-  }
+    @Override
+    protected InstrumentedImageView createView() {
+        return new InstrumentedImageView(getContext());
+    }
 
-  @Override
-  protected void bind(InstrumentedImageView view, String uri) {
-    Glide.with(mContext)
-        .load(uri)
-        .placeholder(Drawables.sPlaceholderDrawable)
-        .error(Drawables.sErrorDrawable)
-        .crossFade()
-        .into(view);
-  }
+    @Override
+    protected void bind(InstrumentedImageView view, String uri) {
+        Glide.with(mContext)
+                .load(uri)
+                .placeholder(Drawables.sPlaceholderDrawable)
+                .error(Drawables.sErrorDrawable)
+                .crossFade()
+                .into(view);
+    }
 
-  @Override
-  public void shutDown() {
-    super.clear();
-    Glide.get(mContext).clearMemory();
-  }
+    @Override
+    public void shutDown() {
+        super.clear();
+        Glide.get(mContext).clearMemory();
+    }
 }

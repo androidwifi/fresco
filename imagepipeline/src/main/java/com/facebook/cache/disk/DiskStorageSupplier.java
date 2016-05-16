@@ -16,10 +16,11 @@ import java.io.IOException;
  */
 public interface DiskStorageSupplier {
 
-  /**
-   * Get a concrete instance of DiskStorage
-   * @return an instance of DiskStorage
-   * @throws IOException
-   */
-  public DiskStorage get() throws IOException;
+    /**
+     * Get a concrete instance of DiskStorage
+     *
+     * @return an instance of DiskStorage
+     * @throws IOException
+     */
+    public DiskStorage get() throws IOException;
 }

@@ -30,23 +30,24 @@ import java.util.Map;
  * @since 2.0 (imported from Google Collections Library)
  */
 public final class Maps {
-  private Maps() {}
+    private Maps() {
+    }
 
-  /**
-   * Creates a <i>mutable</i>, empty {@code HashMap} instance.
-   *
-   * @return a new, empty {@code HashMap}
-   */
-  public static <K, V> HashMap<K, V> newHashMap() {
-    return new HashMap<K, V>();
-  }
+    /**
+     * Creates a <i>mutable</i>, empty {@code HashMap} instance.
+     *
+     * @return a new, empty {@code HashMap}
+     */
+    public static <K, V> HashMap<K, V> newHashMap() {
+        return new HashMap<K, V>();
+    }
 
-  /**
-   * Creates an {@code IdentityHashMap} instance.
-   *
-   * @return a new, empty {@code IdentityHashMap}
-   */
-  public static <K, V> IdentityHashMap<K, V> newIdentityHashMap() {
-    return new IdentityHashMap<K, V>();
-  }
+    /**
+     * Creates an {@code IdentityHashMap} instance.
+     *
+     * @return a new, empty {@code IdentityHashMap}
+     */
+    public static <K, V> IdentityHashMap<K, V> newIdentityHashMap() {
+        return new IdentityHashMap<K, V>();
+    }
 }

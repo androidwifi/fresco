@@ -22,26 +22,27 @@ import com.facebook.imagepipeline.request.ImageRequest;
  * Represents a local file fetch producer.
  */
 public class LocalFileFetchProducer extends LocalFetchProducer {
-  @VisibleForTesting static final String PRODUCER_NAME = "LocalFileFetchProducer";
+    @VisibleForTesting
+    static final String PRODUCER_NAME = "LocalFileFetchProducer";
 
-  public LocalFileFetchProducer(
-      Executor executor,
-      PooledByteBufferFactory pooledByteBufferFactory) {
-    super(executor, pooledByteBufferFactory);
-  }
+    public LocalFileFetchProducer(
+            Executor executor,
+            PooledByteBufferFactory pooledByteBufferFactory) {
+        super(executor, pooledByteBufferFactory);
+    }
 
-  @Override
-  protected InputStream getInputStream(ImageRequest imageRequest) throws IOException {
-    return new FileInputStream(imageRequest.getSourceFile());
-  }
+    @Override
+    protected InputStream getInputStream(ImageRequest imageRequest) throws IOException {
+        return new FileInputStream(imageRequest.getSourceFile());
+    }
 
-  @Override
-  protected int getLength(ImageRequest imageRequest) {
-    return (int) imageRequest.getSourceFile().length();
-  }
+    @Override
+    protected int getLength(ImageRequest imageRequest) {
+        return (int) imageRequest.getSourceFile().length();
+    }
 
-  @Override
-  protected String getProducerName() {
-    return PRODUCER_NAME;
-  }
+    @Override
+    protected String getProducerName() {
+        return PRODUCER_NAME;
+    }
 }

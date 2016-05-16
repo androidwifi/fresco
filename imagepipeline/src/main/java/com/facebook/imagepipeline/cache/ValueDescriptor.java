@@ -13,6 +13,8 @@ package com.facebook.imagepipeline.cache;
  */
 public interface ValueDescriptor<V> {
 
-  /** Returns the size in bytes of the given value. */
-  int getSizeInBytes(V value);
+    /**
+     * Returns the size in bytes of the given value.
+     */
+    int getSizeInBytes(V value);
 }

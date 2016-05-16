@@ -16,8 +16,8 @@ package com.facebook.common.memory;
 
 public interface MemoryTrimmable {
 
-  /**
-   * Trim memory.
-   */
-  public void trim(MemoryTrimType trimType);
+    /**
+     * Trim memory.
+     */
+    public void trim(MemoryTrimType trimType);
 }

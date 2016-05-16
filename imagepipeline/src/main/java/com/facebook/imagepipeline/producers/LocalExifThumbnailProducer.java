@@ -29,103 +29,106 @@ import com.facebook.imageutils.JfifUtil;
 
 /**
  * A producer that retrieves exif thumbnails.
- *
+ * <p>
  * <p>At present, these thumbnails are retrieved on the java heap before being put into native
  * memory.
  */
 public class LocalExifThumbnailProducer implements
-    Producer<Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>> {
+        Producer<Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>> {
 
-  @VisibleForTesting static final String PRODUCER_NAME = "LocalExifThumbnailProducer";
-  @VisibleForTesting static final String CREATED_THUMBNAIL = "createdThumbnail";
+    @VisibleForTesting
+    static final String PRODUCER_NAME = "LocalExifThumbnailProducer";
+    @VisibleForTesting
+    static final String CREATED_THUMBNAIL = "createdThumbnail";
 
-  private final Executor mExecutor;
-  private final PooledByteBufferFactory mPooledByteBufferFactory;
+    private final Executor mExecutor;
+    private final PooledByteBufferFactory mPooledByteBufferFactory;
 
-  public LocalExifThumbnailProducer(
-      Executor executor,
-      PooledByteBufferFactory pooledByteBufferFactory) {
-    mExecutor = executor;
-    mPooledByteBufferFactory = pooledByteBufferFactory;
-  }
-
-  @Override
-  public void produceResults(
-      final Consumer<Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>> consumer,
-      final ProducerContext producerContext) {
-
-    final ProducerListener listener = producerContext.getListener();
-    final String requestId = producerContext.getId();
-    final ImageRequest imageRequest = producerContext.getImageRequest();
-
-    final StatefulProducerRunnable cancellableProducerRunnable =
-        new StatefulProducerRunnable<
-            Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>>(
-            consumer,
-            listener,
-            PRODUCER_NAME,
-            requestId) {
-          @Override
-          protected Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData> getResult()
-              throws Exception {
-            final ExifInterface exifInterface =
-                getExifInterface(imageRequest.getSourceFile().getPath());
-            if (!exifInterface.hasThumbnail()) {
-              return null;
-            }
-
-            byte[] bytes = exifInterface.getThumbnail();
-            PooledByteBuffer pooledByteBuffer = mPooledByteBufferFactory.newByteBuffer(bytes);
-            ImageTransformMetaData imageTransformMetaData =
-                getImageTransformMetaData(pooledByteBuffer, exifInterface);
-            return Pair.create(CloseableReference.of(pooledByteBuffer), imageTransformMetaData);
-          }
-
-          @Override
-          protected void disposeResult(
-              Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData> result) {
-            if (result != null) {
-              CloseableReference.closeSafely(result.first);
-            }
-          }
-
-          @Override
-          protected Map<String, String> getExtraMapOnSuccess(
-              final Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData> result) {
-            return ImmutableMap.of(CREATED_THUMBNAIL, Boolean.toString(result != null));
-          }
-        };
-    producerContext.addCallbacks(
-        new BaseProducerContextCallbacks() {
-          @Override
-          public void onCancellationRequested() {
-            cancellableProducerRunnable.cancel();
-          }
-        });
-    mExecutor.execute(cancellableProducerRunnable);
-  }
-
-  @VisibleForTesting ExifInterface getExifInterface(String path) throws IOException {
-    return new ExifInterface(path);
-  }
-
-  private ImageTransformMetaData getImageTransformMetaData(
-      PooledByteBuffer imageBytes,
-      ExifInterface exifInterface) {
-    ImageTransformMetaData.Builder builder = ImageTransformMetaData.newBuilder()
-        .setImageFormat(ImageFormat.JPEG);
-    builder.setRotationAngle(getRotationAngle(exifInterface));
-    Rect dimensions = JfifUtil.getDimensions(new PooledByteBufferInputStream(imageBytes));
-    if (dimensions != null) {
-      builder.setWidth(dimensions.width());
-      builder.setHeight(dimensions.height());
+    public LocalExifThumbnailProducer(
+            Executor executor,
+            PooledByteBufferFactory pooledByteBufferFactory) {
+        mExecutor = executor;
+        mPooledByteBufferFactory = pooledByteBufferFactory;
     }
-    return builder.build();
-  }
 
-  // Gets the correction angle based on the image's orientation
-  private int getRotationAngle(final ExifInterface exifInterface) {
-    return JfifUtil.getAutoRotateAngleFromOrientation(
-        Integer.parseInt(exifInterface.getAttribute(ExifInterface.TAG_ORIENTATION)));
-  }
+    @Override
+    public void produceResults(
+            final Consumer<Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>> consumer,
+            final ProducerContext producerContext) {
+
+        final ProducerListener listener = producerContext.getListener();
+        final String requestId = producerContext.getId();
+        final ImageRequest imageRequest = producerContext.getImageRequest();
+
+        final StatefulProducerRunnable cancellableProducerRunnable =
+                new StatefulProducerRunnable<
+                        Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData>>(
+                        consumer,
+                        listener,
+                        PRODUCER_NAME,
+                        requestId) {
+                    @Override
+                    protected Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData> getResult()
+                            throws Exception {
+                        final ExifInterface exifInterface =
+                                getExifInterface(imageRequest.getSourceFile().getPath());
+                        if (!exifInterface.hasThumbnail()) {
+                            return null;
+                        }
+
+                        byte[] bytes = exifInterface.getThumbnail();
+                        PooledByteBuffer pooledByteBuffer = mPooledByteBufferFactory.newByteBuffer(bytes);
+                        ImageTransformMetaData imageTransformMetaData =
+                                getImageTransformMetaData(pooledByteBuffer, exifInterface);
+                        return Pair.create(CloseableReference.of(pooledByteBuffer), imageTransformMetaData);
+                    }
+
+                    @Override
+                    protected void disposeResult(
+                            Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData> result) {
+                        if (result != null) {
+                            CloseableReference.closeSafely(result.first);
+                        }
+                    }
+
+                    @Override
+                    protected Map<String, String> getExtraMapOnSuccess(
+                            final Pair<CloseableReference<PooledByteBuffer>, ImageTransformMetaData> result) {
+                        return ImmutableMap.of(CREATED_THUMBNAIL, Boolean.toString(result != null));
+                    }
+                };
+        producerContext.addCallbacks(
+                new BaseProducerContextCallbacks() {
+                    @Override
+                    public void onCancellationRequested() {
+                        cancellableProducerRunnable.cancel();
+                    }
+                });
+        mExecutor.execute(cancellableProducerRunnable);
+    }
+
+    @VisibleForTesting
+    ExifInterface getExifInterface(String path) throws IOException {
+        return new ExifInterface(path);
+    }
+
+    private ImageTransformMetaData getImageTransformMetaData(
+            PooledByteBuffer imageBytes,
+            ExifInterface exifInterface) {
+        ImageTransformMetaData.Builder builder = ImageTransformMetaData.newBuilder()
+                .setImageFormat(ImageFormat.JPEG);
+        builder.setRotationAngle(getRotationAngle(exifInterface));
+        Rect dimensions = JfifUtil.getDimensions(new PooledByteBufferInputStream(imageBytes));
+        if (dimensions != null) {
+            builder.setWidth(dimensions.width());
+            builder.setHeight(dimensions.height());
+        }
+        return builder.build();
+    }
+
+    // Gets the correction angle based on the image's orientation
+    private int getRotationAngle(final ExifInterface exifInterface) {
+        return JfifUtil.getAutoRotateAngleFromOrientation(
+                Integer.parseInt(exifInterface.getAttribute(ExifInterface.TAG_ORIENTATION)));
+    }
 }

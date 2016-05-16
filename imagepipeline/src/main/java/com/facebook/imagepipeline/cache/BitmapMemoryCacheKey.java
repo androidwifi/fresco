@@ -26,60 +26,62 @@ import com.facebook.imagepipeline.common.ResizeOptions;
  * Cache key for BitmapMemoryCache
  */
 public class BitmapMemoryCacheKey implements CacheKey {
-  private final String mSourceString;
-  private final @Nullable ResizeOptions mResizeOptions;
-  private final boolean mAutoRotated;
-  private final ImageDecodeOptions mImageDecodeOptions;
-  private final int mHash;
+    private final String mSourceString;
+    private final
+    @Nullable
+    ResizeOptions mResizeOptions;
+    private final boolean mAutoRotated;
+    private final ImageDecodeOptions mImageDecodeOptions;
+    private final int mHash;
 
-  public BitmapMemoryCacheKey(
-      String sourceString,
-      @Nullable ResizeOptions resizeOptions,
-      boolean autoRotated,
-      ImageDecodeOptions imageDecodeOptions) {
-    mSourceString = Preconditions.checkNotNull(sourceString);
-    mResizeOptions = resizeOptions;
-    mAutoRotated = autoRotated;
-    mImageDecodeOptions = imageDecodeOptions;
-    mHash = HashCodeUtil.hashCode(
-        sourceString.hashCode(),
-        (resizeOptions != null) ? resizeOptions.hashCode() : 0,
-        autoRotated ? Boolean.TRUE.hashCode() : Boolean.FALSE.hashCode(),
-        mImageDecodeOptions);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (!(o instanceof BitmapMemoryCacheKey)) {
-      return false;
+    public BitmapMemoryCacheKey(
+            String sourceString,
+            @Nullable ResizeOptions resizeOptions,
+            boolean autoRotated,
+            ImageDecodeOptions imageDecodeOptions) {
+        mSourceString = Preconditions.checkNotNull(sourceString);
+        mResizeOptions = resizeOptions;
+        mAutoRotated = autoRotated;
+        mImageDecodeOptions = imageDecodeOptions;
+        mHash = HashCodeUtil.hashCode(
+                sourceString.hashCode(),
+                (resizeOptions != null) ? resizeOptions.hashCode() : 0,
+                autoRotated ? Boolean.TRUE.hashCode() : Boolean.FALSE.hashCode(),
+                mImageDecodeOptions);
     }
 
-    BitmapMemoryCacheKey otherKey = (BitmapMemoryCacheKey) o;
-    return mHash == otherKey.mHash &&
-        mSourceString.equals(otherKey.mSourceString) &&
-        Objects.equal(this.mResizeOptions, otherKey.mResizeOptions) &&
-        mAutoRotated == otherKey.mAutoRotated &&
-        Objects.equal(mImageDecodeOptions, otherKey.mImageDecodeOptions);
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof BitmapMemoryCacheKey)) {
+            return false;
+        }
 
-  @Override
-  public int hashCode() {
-    return mHash;
-  }
+        BitmapMemoryCacheKey otherKey = (BitmapMemoryCacheKey) o;
+        return mHash == otherKey.mHash &&
+                mSourceString.equals(otherKey.mSourceString) &&
+                Objects.equal(this.mResizeOptions, otherKey.mResizeOptions) &&
+                mAutoRotated == otherKey.mAutoRotated &&
+                Objects.equal(mImageDecodeOptions, otherKey.mImageDecodeOptions);
+    }
 
-  public String getSourceUriString() {
-    return mSourceString;
-  }
+    @Override
+    public int hashCode() {
+        return mHash;
+    }
 
-  @Override
-  public String toString() {
-    return String.format(
-        (Locale) null,
-        "%s_%s_%s_%s_%d",
-        mSourceString,
-        mResizeOptions,
-        Boolean.toString(mAutoRotated),
-        mImageDecodeOptions,
-        mHash);
-  }
+    public String getSourceUriString() {
+        return mSourceString;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                (Locale) null,
+                "%s_%s_%s_%s_%d",
+                mSourceString,
+                mResizeOptions,
+                Boolean.toString(mAutoRotated),
+                mImageDecodeOptions,
+                mHash);
+    }
 }

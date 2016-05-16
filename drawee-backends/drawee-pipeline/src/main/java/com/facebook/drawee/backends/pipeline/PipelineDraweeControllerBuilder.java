@@ -29,62 +29,62 @@ import com.facebook.imagepipeline.request.ImageRequest;
  * <p/> See {@link AbstractDraweeControllerBuilder} for more details.
  */
 public class PipelineDraweeControllerBuilder extends AbstractDraweeControllerBuilder<
-    PipelineDraweeControllerBuilder,
-    ImageRequest,
-    CloseableReference<CloseableImage>,
-    ImageInfo> {
+        PipelineDraweeControllerBuilder,
+        ImageRequest,
+        CloseableReference<CloseableImage>,
+        ImageInfo> {
 
-  private final ImagePipeline mImagePipeline;
-  private final PipelineDraweeControllerFactory mPipelineDraweeControllerFactory;
+    private final ImagePipeline mImagePipeline;
+    private final PipelineDraweeControllerFactory mPipelineDraweeControllerFactory;
 
-  public PipelineDraweeControllerBuilder(
-      Context context,
-      PipelineDraweeControllerFactory pipelineDraweeControllerFactory,
-      ImagePipeline imagePipeline,
-      Set<ControllerListener> boundControllerListeners) {
-    super(context, boundControllerListeners);
-    mImagePipeline = imagePipeline;
-    mPipelineDraweeControllerFactory = pipelineDraweeControllerFactory;
-  }
-
-  @Override
-  public PipelineDraweeControllerBuilder setUri(Uri uri) {
-    return super.setImageRequest(ImageRequest.fromUri(uri));
-  }
-
-  @Override
-  protected PipelineDraweeController obtainController() {
-    DraweeController oldController = getOldController();
-    PipelineDraweeController controller;
-    if (oldController instanceof PipelineDraweeController) {
-      controller = (PipelineDraweeController) oldController;
-      controller.initialize(
-          obtainDataSourceSupplier(),
-          generateUniqueControllerId(),
-          getCallerContext());
-    } else {
-      controller = mPipelineDraweeControllerFactory.newController(
-          obtainDataSourceSupplier(),
-          generateUniqueControllerId(),
-          getCallerContext());
+    public PipelineDraweeControllerBuilder(
+            Context context,
+            PipelineDraweeControllerFactory pipelineDraweeControllerFactory,
+            ImagePipeline imagePipeline,
+            Set<ControllerListener> boundControllerListeners) {
+        super(context, boundControllerListeners);
+        mImagePipeline = imagePipeline;
+        mPipelineDraweeControllerFactory = pipelineDraweeControllerFactory;
     }
-    return controller;
-  }
 
-  @Override
-  protected DataSource<CloseableReference<CloseableImage>> getDataSourceForRequest(
-      ImageRequest imageRequest,
-      Object callerContext,
-      boolean bitmapCacheOnly) {
-    if (bitmapCacheOnly) {
-      return mImagePipeline.fetchImageFromBitmapCache(imageRequest, callerContext);
-    } else {
-      return mImagePipeline.fetchDecodedImage(imageRequest, callerContext);
+    @Override
+    public PipelineDraweeControllerBuilder setUri(Uri uri) {
+        return super.setImageRequest(ImageRequest.fromUri(uri));
     }
-  }
 
-  @Override
-  protected PipelineDraweeControllerBuilder getThis() {
-    return this;
-  }
+    @Override
+    protected PipelineDraweeController obtainController() {
+        DraweeController oldController = getOldController();
+        PipelineDraweeController controller;
+        if (oldController instanceof PipelineDraweeController) {
+            controller = (PipelineDraweeController) oldController;
+            controller.initialize(
+                    obtainDataSourceSupplier(),
+                    generateUniqueControllerId(),
+                    getCallerContext());
+        } else {
+            controller = mPipelineDraweeControllerFactory.newController(
+                    obtainDataSourceSupplier(),
+                    generateUniqueControllerId(),
+                    getCallerContext());
+        }
+        return controller;
+    }
+
+    @Override
+    protected DataSource<CloseableReference<CloseableImage>> getDataSourceForRequest(
+            ImageRequest imageRequest,
+            Object callerContext,
+            boolean bitmapCacheOnly) {
+        if (bitmapCacheOnly) {
+            return mImagePipeline.fetchImageFromBitmapCache(imageRequest, callerContext);
+        } else {
+            return mImagePipeline.fetchDecodedImage(imageRequest, callerContext);
+        }
+    }
+
+    @Override
+    protected PipelineDraweeControllerBuilder getThis() {
+        return this;
+    }
 }

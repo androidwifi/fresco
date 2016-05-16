@@ -14,22 +14,22 @@ package com.facebook.cache.common;
  */
 public interface CacheEventListener {
 
-  void onHit();
+    void onHit();
 
-  void onMiss();
+    void onMiss();
 
-  void onWriteAttempt();
+    void onWriteAttempt();
 
-  void onReadException();
+    void onReadException();
 
-  void onWriteException();
+    void onWriteException();
 
-  void onEviction(EvictionReason evictionReason, int itemCount, long itemSize);
+    void onEviction(EvictionReason evictionReason, int itemCount, long itemSize);
 
-  enum EvictionReason {
-    CACHE_FULL,
-    CONTENT_STALE,
-    USER_FORCED,
-    CACHE_MANAGER_TRIMMED
-  }
+    enum EvictionReason {
+        CACHE_FULL,
+        CONTENT_STALE,
+        USER_FORCED,
+        CACHE_MANAGER_TRIMMED
+    }
 }

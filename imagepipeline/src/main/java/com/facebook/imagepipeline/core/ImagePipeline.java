@@ -46,270 +46,279 @@ import com.android.internal.util.Predicate;
  */
 @ThreadSafe
 public class ImagePipeline {
-  private static final CancellationException PREFETCH_EXCEPTION =
-      new CancellationException("Prefetching is not enabled");
+    private static final CancellationException PREFETCH_EXCEPTION =
+            new CancellationException("Prefetching is not enabled");
 
-  private final ProducerSequenceFactory mProducerSequenceFactory;
-  private final RequestListener mRequestListener;
-  private final Supplier<Boolean> mIsPrefetchEnabledSupplier;
-  private final MemoryCache<CacheKey, CloseableImage> mBitmapMemoryCache;
-  private final MemoryCache<CacheKey, PooledByteBuffer> mEncodedMemoryCache;
-  private final CacheKeyFactory mCacheKeyFactory;
+    private final ProducerSequenceFactory mProducerSequenceFactory;
+    private final RequestListener mRequestListener;
+    private final Supplier<Boolean> mIsPrefetchEnabledSupplier;
+    private final MemoryCache<CacheKey, CloseableImage> mBitmapMemoryCache;
+    private final MemoryCache<CacheKey, PooledByteBuffer> mEncodedMemoryCache;
+    private final CacheKeyFactory mCacheKeyFactory;
 
-  private AtomicLong mIdCounter;
+    private AtomicLong mIdCounter;
 
-  public ImagePipeline(
-      ProducerSequenceFactory producerSequenceFactory,
-      Set<RequestListener> requestListeners,
-      Supplier<Boolean> isPrefetchEnabledSupplier,
-      MemoryCache<CacheKey, CloseableImage> bitmapMemoryCache,
-      MemoryCache<CacheKey, PooledByteBuffer> encodedMemoryCache,
-      CacheKeyFactory cacheKeyFactory) {
-    mIdCounter = new AtomicLong();
-    mProducerSequenceFactory = producerSequenceFactory;
-    mRequestListener = new ForwardingRequestListener(requestListeners);
-    mIsPrefetchEnabledSupplier = isPrefetchEnabledSupplier;
-    mBitmapMemoryCache = bitmapMemoryCache;
-    mEncodedMemoryCache = encodedMemoryCache;
-    mCacheKeyFactory = cacheKeyFactory;
-  }
-
-  /**
-   * Generates unique id for RequestFuture.
-   * @return unique id
-   */
-  private String generateUniqueFutureId() {
-    return String.valueOf(mIdCounter.getAndIncrement());
-  }
-
-  /**
-   * Returns a DataSource supplier that will on get submit the request for execution and return a
-   * DataSource representing the pending results of the task.
-   * @param imageRequest the request to submit (what to execute).
-   * @param bitmapCacheOnly whether to only look for the image in the bitmap cache
-   * @return a DataSource representing pending results and completion of the request
-   */
-  public Supplier<DataSource<CloseableReference<CloseableImage>>> getDataSourceSupplier(
-      final ImageRequest imageRequest,
-      final Object callerContext,
-      final boolean bitmapCacheOnly) {
-    return new Supplier<DataSource<CloseableReference<CloseableImage>>>() {
-      @Override
-      public DataSource<CloseableReference<CloseableImage>> get() {
-        if (bitmapCacheOnly) {
-          return fetchImageFromBitmapCache(imageRequest, callerContext);
-        } else {
-          return fetchDecodedImage(imageRequest, callerContext);
-        }
-      }
-      @Override
-      public String toString() {
-        return Objects.toStringHelper(this)
-            .add("uri", imageRequest.getSourceUri())
-            .toString();
-      }
-    };
-  }
-
-  /**
-   * Submits a request for bitmap cache lookup.
-   * @param imageRequest the request to submit
-   * @return a DataSource representing the image
-   */
-  public DataSource<CloseableReference<CloseableImage>> fetchImageFromBitmapCache(
-      ImageRequest imageRequest,
-      Object callerContext) {
-    try {
-      Producer<CloseableReference<CloseableImage>> producerSequence =
-          mProducerSequenceFactory.getDecodedImageProducerSequence(imageRequest);
-      return submitFetchRequest(
-          producerSequence,
-          imageRequest,
-          ImageRequest.RequestLevel.BITMAP_MEMORY_CACHE,
-          callerContext);
-    } catch (Exception exception) {
-      return DataSources.immediateFailedDataSource(exception);
+    public ImagePipeline(
+            ProducerSequenceFactory producerSequenceFactory,
+            Set<RequestListener> requestListeners,
+            Supplier<Boolean> isPrefetchEnabledSupplier,
+            MemoryCache<CacheKey, CloseableImage> bitmapMemoryCache,
+            MemoryCache<CacheKey, PooledByteBuffer> encodedMemoryCache,
+            CacheKeyFactory cacheKeyFactory) {
+        mIdCounter = new AtomicLong();
+        mProducerSequenceFactory = producerSequenceFactory;
+        mRequestListener = new ForwardingRequestListener(requestListeners);
+        mIsPrefetchEnabledSupplier = isPrefetchEnabledSupplier;
+        mBitmapMemoryCache = bitmapMemoryCache;
+        mEncodedMemoryCache = encodedMemoryCache;
+        mCacheKeyFactory = cacheKeyFactory;
     }
-  }
 
-  /**
-   * Submits a request for execution and returns a DataSource representing the pending decoded
-   * image(s).
-   *
-   * <p>The returned DataSource must be closed once the client has finished with it.
-   * @param imageRequest the request to submit
-   * @return a DataSource representing the pending decoded image(s)
-   */
-  public DataSource<CloseableReference<CloseableImage>> fetchDecodedImage(
-      ImageRequest imageRequest,
-      Object callerContext) {
-    try {
-      Producer<CloseableReference<CloseableImage>> producerSequence =
-          mProducerSequenceFactory.getDecodedImageProducerSequence(imageRequest);
-      return submitFetchRequest(
-          producerSequence,
-          imageRequest,
-          ImageRequest.RequestLevel.FULL_FETCH,
-          callerContext);
-    } catch (Exception exception) {
-      return DataSources.immediateFailedDataSource(exception);
+    /**
+     * Generates unique id for RequestFuture.
+     *
+     * @return unique id
+     */
+    private String generateUniqueFutureId() {
+        return String.valueOf(mIdCounter.getAndIncrement());
     }
-  }
 
-  /**
-   * Submits a request for execution and returns a DataSource representing the pending encoded
-   * image(s).
-   *
-   * <p>The returned DataSource must be closed once the client has finished with it.
-   * @param imageRequest the request to submit
-   * @return a DataSource representing the pending encoded image(s)
-   */
-  public DataSource<CloseableReference<PooledByteBuffer>> fetchEncodedImage(
-      ImageRequest imageRequest,
-      Object callerContext) {
-    try {
-      Producer<CloseableReference<PooledByteBuffer>> producerSequence =
-          mProducerSequenceFactory.getEncodedImageProducerSequence(imageRequest);
-      return submitFetchRequest(
-          producerSequence,
-          imageRequest,
-          ImageRequest.RequestLevel.FULL_FETCH,
-          callerContext);
-    } catch (Exception exception) {
-      return DataSources.immediateFailedDataSource(exception);
-    }
-  }
-
-  /**
-   * Submits a request for prefetching to the bitmap cache.
-   * @param imageRequest the request to submit
-   * @return a DataSource that can safely be ignored.
-   */
-  public DataSource<Void> prefetchToBitmapCache(
-      ImageRequest imageRequest,
-      Object callerContext) {
-    if (!mIsPrefetchEnabledSupplier.get()) {
-      return DataSources.immediateFailedDataSource(PREFETCH_EXCEPTION);
-    }
-    try {
-      Producer<Void> producerSequence =
-          mProducerSequenceFactory.getDecodedImagePrefetchProducerSequence(imageRequest);
-      return submitPrefetchRequest(
-          producerSequence,
-          imageRequest,
-          ImageRequest.RequestLevel.FULL_FETCH,
-          callerContext);
-    } catch (Exception exception) {
-      return DataSources.immediateFailedDataSource(exception);
-    }
-  }
-
-  /**
-   * Submits a request for prefetching to the disk cache.
-   * @param imageRequest the request to submit
-   * @return a DataSource that can safely be ignored.
-   */
-  public DataSource<Void> prefetchToDiskCache(
-      ImageRequest imageRequest,
-      Object callerContext) {
-    if (!mIsPrefetchEnabledSupplier.get()) {
-      return DataSources.immediateFailedDataSource(PREFETCH_EXCEPTION);
-    }
-    try {
-      Producer<Void> producerSequence =
-          mProducerSequenceFactory.getEncodedImagePrefetchProducerSequence(imageRequest);
-      return submitPrefetchRequest(
-          producerSequence,
-          imageRequest,
-          ImageRequest.RequestLevel.FULL_FETCH,
-          callerContext);
-    } catch (Exception exception) {
-      return DataSources.immediateFailedDataSource(exception);
-    }
-  }
-
-  /**
-   * Removes all images with the specified {@link Uri} from memory cache.
-   * @param uri
-   */
-  public void evictFromMemoryCache(final Uri uri) {
-    final String cacheKeySourceString = mCacheKeyFactory.getCacheKeySourceUri(uri).toString();
-    Predicate<CacheKey> bitmapCachePredicate =
-        new Predicate<CacheKey>() {
-          @Override
-          public boolean apply(CacheKey key) {
-            if (key instanceof BitmapMemoryCacheKey) {
-              return ((BitmapMemoryCacheKey) key).getSourceUriString().equals(cacheKeySourceString);
+    /**
+     * Returns a DataSource supplier that will on get submit the request for execution and return a
+     * DataSource representing the pending results of the task.
+     *
+     * @param imageRequest    the request to submit (what to execute).
+     * @param bitmapCacheOnly whether to only look for the image in the bitmap cache
+     * @return a DataSource representing pending results and completion of the request
+     */
+    public Supplier<DataSource<CloseableReference<CloseableImage>>> getDataSourceSupplier(
+            final ImageRequest imageRequest,
+            final Object callerContext,
+            final boolean bitmapCacheOnly) {
+        return new Supplier<DataSource<CloseableReference<CloseableImage>>>() {
+            @Override
+            public DataSource<CloseableReference<CloseableImage>> get() {
+                if (bitmapCacheOnly) {
+                    return fetchImageFromBitmapCache(imageRequest, callerContext);
+                } else {
+                    return fetchDecodedImage(imageRequest, callerContext);
+                }
             }
-            return false;
-          }
-        };
-    mBitmapMemoryCache.removeAll(bitmapCachePredicate);
 
-    Predicate<CacheKey> encodedCachePredicate =
-        new Predicate<CacheKey>() {
-          @Override
-          public boolean apply(CacheKey key) {
-            return key.toString().equals(cacheKeySourceString);
-          }
+            @Override
+            public String toString() {
+                return Objects.toStringHelper(this)
+                        .add("uri", imageRequest.getSourceUri())
+                        .toString();
+            }
         };
-    mEncodedMemoryCache.removeAll(encodedCachePredicate);
-  }
-
-  private <T> DataSource<CloseableReference<T>> submitFetchRequest(
-      Producer<CloseableReference<T>> producerSequence,
-      ImageRequest imageRequest,
-      ImageRequest.RequestLevel lowestPermittedRequestLevelOnSubmit,
-      Object callerContext) {
-    try {
-      ImageRequest.RequestLevel lowestPermittedRequestLevel =
-          ImageRequest.RequestLevel.getMax(
-              imageRequest.getLowestPermittedRequestLevel(),
-              lowestPermittedRequestLevelOnSubmit);
-      SettableProducerContext settableProducerContext = new SettableProducerContext(
-          imageRequest,
-          generateUniqueFutureId(),
-          mRequestListener,
-          callerContext,
-          lowestPermittedRequestLevel,
-        /* isPrefetch */ false,
-          imageRequest.getProgressiveRenderingEnabled() ||
-              !UriUtil.isNetworkUri(imageRequest.getSourceUri()),
-          imageRequest.getPriority());
-      return CloseableProducerToDataSourceAdapter.create(
-          producerSequence,
-          settableProducerContext,
-          mRequestListener);
-    } catch (Exception exception) {
-      return DataSources.immediateFailedDataSource(exception);
     }
-  }
 
-  private DataSource<Void> submitPrefetchRequest(
-      Producer<Void> producerSequence,
-      ImageRequest imageRequest,
-      ImageRequest.RequestLevel lowestPermittedRequestLevelOnSubmit,
-      Object callerContext) {
-    try {
-      ImageRequest.RequestLevel lowestPermittedRequestLevel =
-          ImageRequest.RequestLevel.getMax(
-              imageRequest.getLowestPermittedRequestLevel(),
-              lowestPermittedRequestLevelOnSubmit);
-      SettableProducerContext settableProducerContext = new SettableProducerContext(
-          imageRequest,
-          generateUniqueFutureId(),
-          mRequestListener,
-          callerContext,
-          lowestPermittedRequestLevel,
+    /**
+     * Submits a request for bitmap cache lookup.
+     *
+     * @param imageRequest the request to submit
+     * @return a DataSource representing the image
+     */
+    public DataSource<CloseableReference<CloseableImage>> fetchImageFromBitmapCache(
+            ImageRequest imageRequest,
+            Object callerContext) {
+        try {
+            Producer<CloseableReference<CloseableImage>> producerSequence =
+                    mProducerSequenceFactory.getDecodedImageProducerSequence(imageRequest);
+            return submitFetchRequest(
+                    producerSequence,
+                    imageRequest,
+                    ImageRequest.RequestLevel.BITMAP_MEMORY_CACHE,
+                    callerContext);
+        } catch (Exception exception) {
+            return DataSources.immediateFailedDataSource(exception);
+        }
+    }
+
+    /**
+     * Submits a request for execution and returns a DataSource representing the pending decoded
+     * image(s).
+     * <p>
+     * <p>The returned DataSource must be closed once the client has finished with it.
+     *
+     * @param imageRequest the request to submit
+     * @return a DataSource representing the pending decoded image(s)
+     */
+    public DataSource<CloseableReference<CloseableImage>> fetchDecodedImage(
+            ImageRequest imageRequest,
+            Object callerContext) {
+        try {
+            Producer<CloseableReference<CloseableImage>> producerSequence =
+                    mProducerSequenceFactory.getDecodedImageProducerSequence(imageRequest);
+            return submitFetchRequest(
+                    producerSequence,
+                    imageRequest,
+                    ImageRequest.RequestLevel.FULL_FETCH,
+                    callerContext);
+        } catch (Exception exception) {
+            return DataSources.immediateFailedDataSource(exception);
+        }
+    }
+
+    /**
+     * Submits a request for execution and returns a DataSource representing the pending encoded
+     * image(s).
+     * <p>
+     * <p>The returned DataSource must be closed once the client has finished with it.
+     *
+     * @param imageRequest the request to submit
+     * @return a DataSource representing the pending encoded image(s)
+     */
+    public DataSource<CloseableReference<PooledByteBuffer>> fetchEncodedImage(
+            ImageRequest imageRequest,
+            Object callerContext) {
+        try {
+            Producer<CloseableReference<PooledByteBuffer>> producerSequence =
+                    mProducerSequenceFactory.getEncodedImageProducerSequence(imageRequest);
+            return submitFetchRequest(
+                    producerSequence,
+                    imageRequest,
+                    ImageRequest.RequestLevel.FULL_FETCH,
+                    callerContext);
+        } catch (Exception exception) {
+            return DataSources.immediateFailedDataSource(exception);
+        }
+    }
+
+    /**
+     * Submits a request for prefetching to the bitmap cache.
+     *
+     * @param imageRequest the request to submit
+     * @return a DataSource that can safely be ignored.
+     */
+    public DataSource<Void> prefetchToBitmapCache(
+            ImageRequest imageRequest,
+            Object callerContext) {
+        if (!mIsPrefetchEnabledSupplier.get()) {
+            return DataSources.immediateFailedDataSource(PREFETCH_EXCEPTION);
+        }
+        try {
+            Producer<Void> producerSequence =
+                    mProducerSequenceFactory.getDecodedImagePrefetchProducerSequence(imageRequest);
+            return submitPrefetchRequest(
+                    producerSequence,
+                    imageRequest,
+                    ImageRequest.RequestLevel.FULL_FETCH,
+                    callerContext);
+        } catch (Exception exception) {
+            return DataSources.immediateFailedDataSource(exception);
+        }
+    }
+
+    /**
+     * Submits a request for prefetching to the disk cache.
+     *
+     * @param imageRequest the request to submit
+     * @return a DataSource that can safely be ignored.
+     */
+    public DataSource<Void> prefetchToDiskCache(
+            ImageRequest imageRequest,
+            Object callerContext) {
+        if (!mIsPrefetchEnabledSupplier.get()) {
+            return DataSources.immediateFailedDataSource(PREFETCH_EXCEPTION);
+        }
+        try {
+            Producer<Void> producerSequence =
+                    mProducerSequenceFactory.getEncodedImagePrefetchProducerSequence(imageRequest);
+            return submitPrefetchRequest(
+                    producerSequence,
+                    imageRequest,
+                    ImageRequest.RequestLevel.FULL_FETCH,
+                    callerContext);
+        } catch (Exception exception) {
+            return DataSources.immediateFailedDataSource(exception);
+        }
+    }
+
+    /**
+     * Removes all images with the specified {@link Uri} from memory cache.
+     *
+     * @param uri
+     */
+    public void evictFromMemoryCache(final Uri uri) {
+        final String cacheKeySourceString = mCacheKeyFactory.getCacheKeySourceUri(uri).toString();
+        Predicate<CacheKey> bitmapCachePredicate =
+                new Predicate<CacheKey>() {
+                    @Override
+                    public boolean apply(CacheKey key) {
+                        if (key instanceof BitmapMemoryCacheKey) {
+                            return ((BitmapMemoryCacheKey) key).getSourceUriString().equals(cacheKeySourceString);
+                        }
+                        return false;
+                    }
+                };
+        mBitmapMemoryCache.removeAll(bitmapCachePredicate);
+
+        Predicate<CacheKey> encodedCachePredicate =
+                new Predicate<CacheKey>() {
+                    @Override
+                    public boolean apply(CacheKey key) {
+                        return key.toString().equals(cacheKeySourceString);
+                    }
+                };
+        mEncodedMemoryCache.removeAll(encodedCachePredicate);
+    }
+
+    private <T> DataSource<CloseableReference<T>> submitFetchRequest(
+            Producer<CloseableReference<T>> producerSequence,
+            ImageRequest imageRequest,
+            ImageRequest.RequestLevel lowestPermittedRequestLevelOnSubmit,
+            Object callerContext) {
+        try {
+            ImageRequest.RequestLevel lowestPermittedRequestLevel =
+                    ImageRequest.RequestLevel.getMax(
+                            imageRequest.getLowestPermittedRequestLevel(),
+                            lowestPermittedRequestLevelOnSubmit);
+            SettableProducerContext settableProducerContext = new SettableProducerContext(
+                    imageRequest,
+                    generateUniqueFutureId(),
+                    mRequestListener,
+                    callerContext,
+                    lowestPermittedRequestLevel,
+        /* isPrefetch */ false,
+                    imageRequest.getProgressiveRenderingEnabled() ||
+                            !UriUtil.isNetworkUri(imageRequest.getSourceUri()),
+                    imageRequest.getPriority());
+            return CloseableProducerToDataSourceAdapter.create(
+                    producerSequence,
+                    settableProducerContext,
+                    mRequestListener);
+        } catch (Exception exception) {
+            return DataSources.immediateFailedDataSource(exception);
+        }
+    }
+
+    private DataSource<Void> submitPrefetchRequest(
+            Producer<Void> producerSequence,
+            ImageRequest imageRequest,
+            ImageRequest.RequestLevel lowestPermittedRequestLevelOnSubmit,
+            Object callerContext) {
+        try {
+            ImageRequest.RequestLevel lowestPermittedRequestLevel =
+                    ImageRequest.RequestLevel.getMax(
+                            imageRequest.getLowestPermittedRequestLevel(),
+                            lowestPermittedRequestLevelOnSubmit);
+            SettableProducerContext settableProducerContext = new SettableProducerContext(
+                    imageRequest,
+                    generateUniqueFutureId(),
+                    mRequestListener,
+                    callerContext,
+                    lowestPermittedRequestLevel,
         /* isPrefetch */ true,
         /* isIntermediateResultExpected */ false,
-          Priority.LOW);
-      return ProducerToDataSourceAdapter.create(
-          producerSequence,
-          settableProducerContext,
-          mRequestListener);
-    } catch (Exception exception) {
-      return DataSources.immediateFailedDataSource(exception);
+                    Priority.LOW);
+            return ProducerToDataSourceAdapter.create(
+                    producerSequence,
+                    settableProducerContext,
+                    mRequestListener);
+        } catch (Exception exception) {
+            return DataSources.immediateFailedDataSource(exception);
+        }
     }
-  }
 }

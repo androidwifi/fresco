@@ -17,42 +17,42 @@ import com.facebook.imagepipeline.image.QualityInfo;
 
 /**
  * Simple {@link ProgressiveJpegConfig} with predefined scans to decode and good-enough scan number.
- *
+ * <p>
  * <p/> If no specific scans to decode are provided, every scan is allowed to be decoded.
  */
 public class SimpleProgressiveJpegConfig implements ProgressiveJpegConfig {
-  private final List<Integer> mScansToDecode;
-  private final int mGoodEnoughScanNumber;
+    private final List<Integer> mScansToDecode;
+    private final int mGoodEnoughScanNumber;
 
-  public SimpleProgressiveJpegConfig() {
-    this(new ArrayList<Integer>(), 0);
-  }
-
-  public SimpleProgressiveJpegConfig(
-      List<Integer> scansToDecode,
-      int goodEnoughScanNumber) {
-    mScansToDecode = scansToDecode;
-    mGoodEnoughScanNumber = goodEnoughScanNumber;
-  }
-
-  @Override
-  public int getNextScanNumberToDecode(int scanNumber) {
-    if (mScansToDecode == null || mScansToDecode.isEmpty()) {
-      return scanNumber + 1;
+    public SimpleProgressiveJpegConfig() {
+        this(new ArrayList<Integer>(), 0);
     }
-    for (int i = 0; i < mScansToDecode.size(); i++) {
-      if (mScansToDecode.get(i) > scanNumber) {
-        return mScansToDecode.get(i);
-      }
-    }
-    return Integer.MAX_VALUE;
-  }
 
-  @Override
-  public QualityInfo getQualityInfo(int scanNumber) {
-    return ImmutableQualityInfo.of(
-        scanNumber,
+    public SimpleProgressiveJpegConfig(
+            List<Integer> scansToDecode,
+            int goodEnoughScanNumber) {
+        mScansToDecode = scansToDecode;
+        mGoodEnoughScanNumber = goodEnoughScanNumber;
+    }
+
+    @Override
+    public int getNextScanNumberToDecode(int scanNumber) {
+        if (mScansToDecode == null || mScansToDecode.isEmpty()) {
+            return scanNumber + 1;
+        }
+        for (int i = 0; i < mScansToDecode.size(); i++) {
+            if (mScansToDecode.get(i) > scanNumber) {
+                return mScansToDecode.get(i);
+            }
+        }
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public QualityInfo getQualityInfo(int scanNumber) {
+        return ImmutableQualityInfo.of(
+                scanNumber,
         /* isOfGoodEnoughQuality */ scanNumber >= mGoodEnoughScanNumber,
         /* isOfFullQuality */ false);
-  }
+    }
 }

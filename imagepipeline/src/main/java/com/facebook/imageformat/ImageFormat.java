@@ -14,16 +14,16 @@ package com.facebook.imageformat;
  */
 public enum ImageFormat {
 
-  WEBP_SIMPLE,
-  WEBP_LOSSLESS,
-  WEBP_EXTENDED,
-  WEBP_EXTENDED_WITH_ALPHA,
-  WEBP_ANIMATED,
-  JPEG,
-  PNG,
-  GIF,
-  /**
-   * Unknown image. This is needed in case we fail to detect any type for particular image.
-   */
-  UNKNOWN;
+    WEBP_SIMPLE,
+    WEBP_LOSSLESS,
+    WEBP_EXTENDED,
+    WEBP_EXTENDED_WITH_ALPHA,
+    WEBP_ANIMATED,
+    JPEG,
+    PNG,
+    GIF,
+    /**
+     * Unknown image. This is needed in case we fail to detect any type for particular image.
+     */
+    UNKNOWN;
 }

@@ -19,34 +19,36 @@ import com.facebook.fresco.sample.instrumentation.InstrumentedImageView;
 import com.facebook.fresco.sample.instrumentation.PerfListener;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-/** Populate the list view with images using the Universal Image Loader library. */
+/**
+ * Populate the list view with images using the Universal Image Loader library.
+ */
 public class UilAdapter extends ImageListAdapter<InstrumentedImageView> {
 
-  private final ImageLoader mImageLoader;
+    private final ImageLoader mImageLoader;
 
-  public UilAdapter(Context context, int resourceId, PerfListener perfListener) {
-    super(context, resourceId, perfListener);
-    mImageLoader = SampleUilFactory.getImageLoader(context);
-  }
+    public UilAdapter(Context context, int resourceId, PerfListener perfListener) {
+        super(context, resourceId, perfListener);
+        mImageLoader = SampleUilFactory.getImageLoader(context);
+    }
 
-  @Override
-  protected Class<InstrumentedImageView> getViewClass() {
-    return InstrumentedImageView.class;
-  }
+    @Override
+    protected Class<InstrumentedImageView> getViewClass() {
+        return InstrumentedImageView.class;
+    }
 
-  @Override
-  protected InstrumentedImageView createView() {
-    return new InstrumentedImageView(getContext());
-  }
+    @Override
+    protected InstrumentedImageView createView() {
+        return new InstrumentedImageView(getContext());
+    }
 
-  @Override
-  protected void bind(InstrumentedImageView view, String uri) {
-    mImageLoader.displayImage(uri, view);
-  }
+    @Override
+    protected void bind(InstrumentedImageView view, String uri) {
+        mImageLoader.displayImage(uri, view);
+    }
 
-  @Override
-  public void shutDown() {
-    super.clear();
-    mImageLoader.clearMemoryCache();
-  }
+    @Override
+    public void shutDown() {
+        super.clear();
+        mImageLoader.clearMemoryCache();
+    }
 }

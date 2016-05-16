@@ -35,178 +35,178 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(WithTestDefaultsRunner.class)
 @PrepareOnlyThisForTest({
-    WebPImage.class,
-    AnimatedImageFactory.class,
-    AnimatedImageCompositor.class})
+        WebPImage.class,
+        AnimatedImageFactory.class,
+        AnimatedImageCompositor.class})
 public class AnimatedImageFactoryTest {
 
-  static {
-    SoLoaderShim.setInTestMode();
-  }
-
-  private static ResourceReleaser<PooledByteBuffer> FAKE_RESOURCE_RELEASER =
-      new ResourceReleaser<PooledByteBuffer>() {
-
-    @Override
-    public void release(PooledByteBuffer value) {
+    static {
+        SoLoaderShim.setInTestMode();
     }
-  };
 
-  private static ResourceReleaser<Bitmap> FAKE_BITMAP_RESOURCE_RELEASER =
-      new ResourceReleaser<Bitmap>() {
+    private static ResourceReleaser<PooledByteBuffer> FAKE_RESOURCE_RELEASER =
+            new ResourceReleaser<PooledByteBuffer>() {
 
-        @Override
-        public void release(Bitmap value) {
-        }
-      };
+                @Override
+                public void release(PooledByteBuffer value) {
+                }
+            };
 
-  private AnimatedDrawableBackendProvider mMockAnimatedDrawableBackendProvider;
-  private PlatformBitmapFactory mMockBitmapFactory;
-  private AnimatedImageFactory mAnimatedImageFactory;
+    private static ResourceReleaser<Bitmap> FAKE_BITMAP_RESOURCE_RELEASER =
+            new ResourceReleaser<Bitmap>() {
 
-  @Before
-  public void setup() {
-    PowerMockito.mockStatic(WebPImage.class);
+                @Override
+                public void release(Bitmap value) {
+                }
+            };
 
-    mMockAnimatedDrawableBackendProvider = mock(AnimatedDrawableBackendProvider.class);
-    mMockBitmapFactory = mock(PlatformBitmapFactory.class);
+    private AnimatedDrawableBackendProvider mMockAnimatedDrawableBackendProvider;
+    private PlatformBitmapFactory mMockBitmapFactory;
+    private AnimatedImageFactory mAnimatedImageFactory;
 
-    mAnimatedImageFactory = new AnimatedImageFactory(
-        mMockAnimatedDrawableBackendProvider,
-        mMockBitmapFactory);
-  }
+    @Before
+    public void setup() {
+        PowerMockito.mockStatic(WebPImage.class);
 
-  @Test
-  public void testCreateDefaults() {
-    WebPImage mockWebPImage = mock(WebPImage.class);
+        mMockAnimatedDrawableBackendProvider = mock(AnimatedDrawableBackendProvider.class);
+        mMockBitmapFactory = mock(PlatformBitmapFactory.class);
 
-    // Expect a call to WebPImage.create
-    TrivialPooledByteBuffer byteBuffer = createByteBuffer();
-    when(WebPImage.create(byteBuffer.getNativePtr(), byteBuffer.size()))
-        .thenReturn(mockWebPImage);
+        mAnimatedImageFactory = new AnimatedImageFactory(
+                mMockAnimatedDrawableBackendProvider,
+                mMockBitmapFactory);
+    }
 
-    CloseableAnimatedImage closeableImage =
-        (CloseableAnimatedImage) mAnimatedImageFactory.decodeWebP(
-            CloseableReference.of(byteBuffer, FAKE_RESOURCE_RELEASER),
-            ImageDecodeOptions.defaults());
+    @Test
+    public void testCreateDefaults() {
+        WebPImage mockWebPImage = mock(WebPImage.class);
 
-    // Verify we got the right result
-    AnimatedImageResult imageResult = closeableImage.getImageResult();
-    assertSame(mockWebPImage, imageResult.getImage());
-    assertNull(imageResult.getPreviewBitmap());
-    assertFalse(imageResult.hasDecodedFrame(0));
+        // Expect a call to WebPImage.create
+        TrivialPooledByteBuffer byteBuffer = createByteBuffer();
+        when(WebPImage.create(byteBuffer.getNativePtr(), byteBuffer.size()))
+                .thenReturn(mockWebPImage);
 
-    // Should not have interacted with these.
-    verifyZeroInteractions(mMockAnimatedDrawableBackendProvider);
-    verifyZeroInteractions(mMockBitmapFactory);
-  }
+        CloseableAnimatedImage closeableImage =
+                (CloseableAnimatedImage) mAnimatedImageFactory.decodeWebP(
+                        CloseableReference.of(byteBuffer, FAKE_RESOURCE_RELEASER),
+                        ImageDecodeOptions.defaults());
 
-  @Test
-  public void testCreateWithPreviewBitmap() throws Exception {
-    WebPImage mockWebPImage = mock(WebPImage.class);
+        // Verify we got the right result
+        AnimatedImageResult imageResult = closeableImage.getImageResult();
+        assertSame(mockWebPImage, imageResult.getImage());
+        assertNull(imageResult.getPreviewBitmap());
+        assertFalse(imageResult.hasDecodedFrame(0));
 
-    Bitmap mockBitmap = MockBitmapFactory.create(50, 50);
+        // Should not have interacted with these.
+        verifyZeroInteractions(mMockAnimatedDrawableBackendProvider);
+        verifyZeroInteractions(mMockBitmapFactory);
+    }
 
-    // Expect a call to WebPImage.create
-    TrivialPooledByteBuffer byteBuffer = createByteBuffer();
-    when(WebPImage.create(byteBuffer.getNativePtr(), byteBuffer.size()))
-        .thenReturn(mockWebPImage);
-    when(mockWebPImage.getWidth()).thenReturn(50);
-    when(mockWebPImage.getHeight()).thenReturn(50);
+    @Test
+    public void testCreateWithPreviewBitmap() throws Exception {
+        WebPImage mockWebPImage = mock(WebPImage.class);
 
-    // For decoding preview frame, expect some calls.
-    when(mMockAnimatedDrawableBackendProvider.get(
-            any(AnimatedImageResult.class),
-            isNull(Rect.class)))
-        .thenReturn(new TestAnimatedDrawableBackend(50, 50, new int[]{100}));
-    when(mMockBitmapFactory.createBitmap(50, 50))
-        .thenReturn(CloseableReference.of(mockBitmap, FAKE_BITMAP_RESOURCE_RELEASER));
-    AnimatedImageCompositor mockCompositor = mock(AnimatedImageCompositor.class);
-    PowerMockito.whenNew(AnimatedImageCompositor.class)
-        .withAnyArguments()
-        .thenReturn(mockCompositor);
+        Bitmap mockBitmap = MockBitmapFactory.create(50, 50);
 
-    ImageDecodeOptions imageDecodeOptions = ImageDecodeOptions.newBuilder()
-        .setDecodePreviewFrame(true)
-        .build();
-    CloseableAnimatedImage closeableImage =
-        (CloseableAnimatedImage) mAnimatedImageFactory.decodeWebP(
-            CloseableReference.of(byteBuffer, FAKE_RESOURCE_RELEASER),
-            imageDecodeOptions);
+        // Expect a call to WebPImage.create
+        TrivialPooledByteBuffer byteBuffer = createByteBuffer();
+        when(WebPImage.create(byteBuffer.getNativePtr(), byteBuffer.size()))
+                .thenReturn(mockWebPImage);
+        when(mockWebPImage.getWidth()).thenReturn(50);
+        when(mockWebPImage.getHeight()).thenReturn(50);
 
-    // Verify we got the right result
-    AnimatedImageResult imageResult = closeableImage.getImageResult();
-    assertSame(mockWebPImage, imageResult.getImage());
-    assertNotNull(imageResult.getPreviewBitmap());
-    assertFalse(imageResult.hasDecodedFrame(0));
+        // For decoding preview frame, expect some calls.
+        when(mMockAnimatedDrawableBackendProvider.get(
+                any(AnimatedImageResult.class),
+                isNull(Rect.class)))
+                .thenReturn(new TestAnimatedDrawableBackend(50, 50, new int[]{100}));
+        when(mMockBitmapFactory.createBitmap(50, 50))
+                .thenReturn(CloseableReference.of(mockBitmap, FAKE_BITMAP_RESOURCE_RELEASER));
+        AnimatedImageCompositor mockCompositor = mock(AnimatedImageCompositor.class);
+        PowerMockito.whenNew(AnimatedImageCompositor.class)
+                .withAnyArguments()
+                .thenReturn(mockCompositor);
 
-    // Should not have interacted with these.
-    verify(mMockAnimatedDrawableBackendProvider).get(
-        any(AnimatedImageResult.class),
-        isNull(Rect.class));
-    verifyNoMoreInteractions(mMockAnimatedDrawableBackendProvider);
-    verify(mMockBitmapFactory).createBitmap(50, 50);
-    verifyNoMoreInteractions(mMockBitmapFactory);
-    verify(mockCompositor).renderFrame(0, mockBitmap);
-  }
+        ImageDecodeOptions imageDecodeOptions = ImageDecodeOptions.newBuilder()
+                .setDecodePreviewFrame(true)
+                .build();
+        CloseableAnimatedImage closeableImage =
+                (CloseableAnimatedImage) mAnimatedImageFactory.decodeWebP(
+                        CloseableReference.of(byteBuffer, FAKE_RESOURCE_RELEASER),
+                        imageDecodeOptions);
 
-  @Test
-  public void testCreateWithDecodeAlFrames() throws Exception {
-    WebPImage mockWebPImage = mock(WebPImage.class);
+        // Verify we got the right result
+        AnimatedImageResult imageResult = closeableImage.getImageResult();
+        assertSame(mockWebPImage, imageResult.getImage());
+        assertNotNull(imageResult.getPreviewBitmap());
+        assertFalse(imageResult.hasDecodedFrame(0));
 
-    Bitmap mockBitmap1 = MockBitmapFactory.create(50, 50);
-    Bitmap mockBitmap2 = MockBitmapFactory.create(50, 50);
+        // Should not have interacted with these.
+        verify(mMockAnimatedDrawableBackendProvider).get(
+                any(AnimatedImageResult.class),
+                isNull(Rect.class));
+        verifyNoMoreInteractions(mMockAnimatedDrawableBackendProvider);
+        verify(mMockBitmapFactory).createBitmap(50, 50);
+        verifyNoMoreInteractions(mMockBitmapFactory);
+        verify(mockCompositor).renderFrame(0, mockBitmap);
+    }
 
-    // Expect a call to WebPImage.create
-    TrivialPooledByteBuffer byteBuffer = createByteBuffer();
-    when(WebPImage.create(byteBuffer.getNativePtr(), byteBuffer.size()))
-        .thenReturn(mockWebPImage);
-    when(mockWebPImage.getWidth()).thenReturn(50);
-    when(mockWebPImage.getHeight()).thenReturn(50);
+    @Test
+    public void testCreateWithDecodeAlFrames() throws Exception {
+        WebPImage mockWebPImage = mock(WebPImage.class);
 
-    // For decoding preview frame, expect some calls.
-    when(
-        mMockAnimatedDrawableBackendProvider.get(
-            any(AnimatedImageResult.class),
-            isNull(Rect.class)))
-        .thenReturn(new TestAnimatedDrawableBackend(50, 50, new int[]{ 100, 200 }));
-    when(mMockBitmapFactory.createBitmap(50, 50))
-        .thenReturn(CloseableReference.of(mockBitmap1, FAKE_BITMAP_RESOURCE_RELEASER))
-        .thenReturn(CloseableReference.of(mockBitmap2, FAKE_BITMAP_RESOURCE_RELEASER));
-    AnimatedImageCompositor mockCompositor = mock(AnimatedImageCompositor.class);
-    PowerMockito.whenNew(AnimatedImageCompositor.class)
-        .withAnyArguments()
-        .thenReturn(mockCompositor);
+        Bitmap mockBitmap1 = MockBitmapFactory.create(50, 50);
+        Bitmap mockBitmap2 = MockBitmapFactory.create(50, 50);
 
-    ImageDecodeOptions imageDecodeOptions = ImageDecodeOptions.newBuilder()
-        .setDecodePreviewFrame(true)
-        .setDecodeAllFrames(true)
-        .build();
-    CloseableAnimatedImage closeableImage =
-        (CloseableAnimatedImage) mAnimatedImageFactory.decodeWebP(
-            CloseableReference.of(byteBuffer, FAKE_RESOURCE_RELEASER),
-            imageDecodeOptions);
+        // Expect a call to WebPImage.create
+        TrivialPooledByteBuffer byteBuffer = createByteBuffer();
+        when(WebPImage.create(byteBuffer.getNativePtr(), byteBuffer.size()))
+                .thenReturn(mockWebPImage);
+        when(mockWebPImage.getWidth()).thenReturn(50);
+        when(mockWebPImage.getHeight()).thenReturn(50);
 
-    // Verify we got the right result
-    AnimatedImageResult imageResult = closeableImage.getImageResult();
-    assertSame(mockWebPImage, imageResult.getImage());
-    assertNotNull(imageResult.getDecodedFrame(0));
-    assertNotNull(imageResult.getDecodedFrame(1));
-    assertNotNull(imageResult.getPreviewBitmap());
+        // For decoding preview frame, expect some calls.
+        when(
+                mMockAnimatedDrawableBackendProvider.get(
+                        any(AnimatedImageResult.class),
+                        isNull(Rect.class)))
+                .thenReturn(new TestAnimatedDrawableBackend(50, 50, new int[]{100, 200}));
+        when(mMockBitmapFactory.createBitmap(50, 50))
+                .thenReturn(CloseableReference.of(mockBitmap1, FAKE_BITMAP_RESOURCE_RELEASER))
+                .thenReturn(CloseableReference.of(mockBitmap2, FAKE_BITMAP_RESOURCE_RELEASER));
+        AnimatedImageCompositor mockCompositor = mock(AnimatedImageCompositor.class);
+        PowerMockito.whenNew(AnimatedImageCompositor.class)
+                .withAnyArguments()
+                .thenReturn(mockCompositor);
 
-    // Should not have interacted with these.
-    verify(mMockAnimatedDrawableBackendProvider).get(
-        any(AnimatedImageResult.class),
-        isNull(Rect.class));
-    verifyNoMoreInteractions(mMockAnimatedDrawableBackendProvider);
-    verify(mMockBitmapFactory, times(2)).createBitmap(50, 50);
-    verifyNoMoreInteractions(mMockBitmapFactory);
-    verify(mockCompositor).renderFrame(0, mockBitmap1);
-    verify(mockCompositor).renderFrame(1, mockBitmap2);
-  }
+        ImageDecodeOptions imageDecodeOptions = ImageDecodeOptions.newBuilder()
+                .setDecodePreviewFrame(true)
+                .setDecodeAllFrames(true)
+                .build();
+        CloseableAnimatedImage closeableImage =
+                (CloseableAnimatedImage) mAnimatedImageFactory.decodeWebP(
+                        CloseableReference.of(byteBuffer, FAKE_RESOURCE_RELEASER),
+                        imageDecodeOptions);
 
-  private TrivialPooledByteBuffer createByteBuffer() {
-    byte[] buf = new byte[16];
-    return new TrivialPooledByteBuffer(buf);
-  }
+        // Verify we got the right result
+        AnimatedImageResult imageResult = closeableImage.getImageResult();
+        assertSame(mockWebPImage, imageResult.getImage());
+        assertNotNull(imageResult.getDecodedFrame(0));
+        assertNotNull(imageResult.getDecodedFrame(1));
+        assertNotNull(imageResult.getPreviewBitmap());
+
+        // Should not have interacted with these.
+        verify(mMockAnimatedDrawableBackendProvider).get(
+                any(AnimatedImageResult.class),
+                isNull(Rect.class));
+        verifyNoMoreInteractions(mMockAnimatedDrawableBackendProvider);
+        verify(mMockBitmapFactory, times(2)).createBitmap(50, 50);
+        verifyNoMoreInteractions(mMockBitmapFactory);
+        verify(mockCompositor).renderFrame(0, mockBitmap1);
+        verify(mockCompositor).renderFrame(1, mockBitmap2);
+    }
+
+    private TrivialPooledByteBuffer createByteBuffer() {
+        byte[] buf = new byte[16];
+        return new TrivialPooledByteBuffer(buf);
+    }
 }

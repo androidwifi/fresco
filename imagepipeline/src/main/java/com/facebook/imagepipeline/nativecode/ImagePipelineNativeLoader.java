@@ -17,33 +17,34 @@ import com.facebook.common.soloader.SoLoaderShim;
 
 /**
  * Single place responsible for loading libimagepipeline.so and its dependencies.
- *
+ * <p>
  * If your class has a native method whose implementation lives in libimagepipeline.so then call
  * {@link ImagePipelineNativeLoader#load} in its static initializer:
  * <code>
- *   public class ClassWithNativeMethod {
- *     static {
- *       ImagePipelineNativeLoader.load();
- *     }
- *
- *     private static native void aNativeMethod();
- *   }
+ * public class ClassWithNativeMethod {
+ * static {
+ * ImagePipelineNativeLoader.load();
+ * }
+ * <p>
+ * private static native void aNativeMethod();
+ * }
  * </code>
  */
 public class ImagePipelineNativeLoader {
-  public static final String DSO_NAME = "imagepipeline";
+    public static final String DSO_NAME = "imagepipeline";
 
-  public static final List<String> DEPENDENCIES;
-  static {
-    List<String> dependencies = new ArrayList<String>();
-    dependencies.add("webp");
-    DEPENDENCIES = Collections.unmodifiableList(dependencies);
-  }
+    public static final List<String> DEPENDENCIES;
 
-  public static void load() {
-    for (int i = 0; i < DEPENDENCIES.size(); ++i) {
-      SoLoaderShim.loadLibrary(DEPENDENCIES.get(i));
+    static {
+        List<String> dependencies = new ArrayList<String>();
+        dependencies.add("webp");
+        DEPENDENCIES = Collections.unmodifiableList(dependencies);
     }
-    SoLoaderShim.loadLibrary(DSO_NAME);
-  }
+
+    public static void load() {
+        for (int i = 0; i < DEPENDENCIES.size(); ++i) {
+            SoLoaderShim.loadLibrary(DEPENDENCIES.get(i));
+        }
+        SoLoaderShim.loadLibrary(DSO_NAME);
+    }
 }

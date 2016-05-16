@@ -25,7 +25,6 @@ apply from: rootProject.file('release.gradle')
 
 def generatedTestSources = "$buildDir/generated-src/test"
 
-
 // Gradle and Buck need different versions of the test runner.
 // For gradle, WithTestDefaultsRunner just is a direct sub-class of RobolectricTestRunner.
 task generateTestSources {
@@ -35,14 +34,14 @@ task generateTestSources {
         def generated = new File(generatedTestSources, "WithTestDefaultsRunner.java")
         generated.text =
                 "package com.facebook.testing.robolectric.v2;\n" +
-                "import org.robolectric.RobolectricTestRunner;\n" +
-                "import org.junit.runners.model.InitializationError;\n" +
-                "public class WithTestDefaultsRunner extends RobolectricTestRunner {\n" +
-                "  public WithTestDefaultsRunner(final Class<?> testClass) " +
+                        "import org.robolectric.RobolectricTestRunner;\n" +
+                        "import org.junit.runners.model.InitializationError;\n" +
+                        "public class WithTestDefaultsRunner extends RobolectricTestRunner {\n" +
+                        "  public WithTestDefaultsRunner(final Class<?> testClass) " +
                         "throws InitializationError {" +
-                "    super(testClass);" +
-                "  }" +
-                "}"
+                        "    super(testClass);" +
+                        "  }" +
+                        "}"
     }
 }
 
@@ -53,12 +52,12 @@ android {
     compileSdkVersion 21
 
     packagingOptions {
-      exclude 'LICENSE'
-      exclude 'LICENSE.txt'
-      exclude 'META-INF/LICENSE'
-      exclude 'META-INF/LICENSE.txt'
-      exclude 'META-INF/NOTICE'
-      exclude 'META-INF/NOTICE.txt'
+        exclude 'LICENSE'
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
     }
 }
 

@@ -26,45 +26,45 @@ import org.mockito.Mockito;
 @RunWith(WithTestDefaultsRunner.class)
 public class CloseableReferenceTest {
 
-  private Closeable mMockCloseable;
-  private CloseableReference<Closeable> mCloseableReference;
+    private Closeable mMockCloseable;
+    private CloseableReference<Closeable> mCloseableReference;
 
-  @Before
-  public void setup() {
-    mMockCloseable = Mockito.mock(Closeable.class);
-    mCloseableReference = CloseableReference.of(mMockCloseable);
-  }
+    @Before
+    public void setup() {
+        mMockCloseable = Mockito.mock(Closeable.class);
+        mCloseableReference = CloseableReference.of(mMockCloseable);
+    }
 
-  @Test
-  public void testCreation() {
-    Assert.assertEquals(1,
-        mCloseableReference.getUnderlyingReferenceTestOnly().getRefCountTestOnly());
-  }
+    @Test
+    public void testCreation() {
+        Assert.assertEquals(1,
+                mCloseableReference.getUnderlyingReferenceTestOnly().getRefCountTestOnly());
+    }
 
-  @Test
-  public void testClone() {
-    CloseableReference<Closeable> copy = mCloseableReference.clone();
-    Assert.assertEquals(2,
-        mCloseableReference.getUnderlyingReferenceTestOnly().getRefCountTestOnly());
-    Assert.assertSame(mCloseableReference.getUnderlyingReferenceTestOnly(),
-        copy.getUnderlyingReferenceTestOnly());
-  }
+    @Test
+    public void testClone() {
+        CloseableReference<Closeable> copy = mCloseableReference.clone();
+        Assert.assertEquals(2,
+                mCloseableReference.getUnderlyingReferenceTestOnly().getRefCountTestOnly());
+        Assert.assertSame(mCloseableReference.getUnderlyingReferenceTestOnly(),
+                copy.getUnderlyingReferenceTestOnly());
+    }
 
-  @Test
-  public void testCloseReference() {
-    CloseableReference<Closeable> copy = mCloseableReference.clone();
-    Assert.assertEquals(2,
-        mCloseableReference.getUnderlyingReferenceTestOnly().getRefCountTestOnly());
-    copy.close();
-    Assert.assertEquals(1,
-        mCloseableReference.getUnderlyingReferenceTestOnly().getRefCountTestOnly());
-  }
+    @Test
+    public void testCloseReference() {
+        CloseableReference<Closeable> copy = mCloseableReference.clone();
+        Assert.assertEquals(2,
+                mCloseableReference.getUnderlyingReferenceTestOnly().getRefCountTestOnly());
+        copy.close();
+        Assert.assertEquals(1,
+                mCloseableReference.getUnderlyingReferenceTestOnly().getRefCountTestOnly());
+    }
 
-  @Test
-  public void testCloseWhenRefcount0() throws IOException {
-    mCloseableReference.close();
-    Assert.assertEquals(0,
-        mCloseableReference.getUnderlyingReferenceTestOnly().getRefCountTestOnly());
-    Mockito.verify(mMockCloseable).close();
-  }
+    @Test
+    public void testCloseWhenRefcount0() throws IOException {
+        mCloseableReference.close();
+        Assert.assertEquals(0,
+                mCloseableReference.getUnderlyingReferenceTestOnly().getRefCountTestOnly());
+        Mockito.verify(mMockCloseable).close();
+    }
 }

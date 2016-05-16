@@ -20,36 +20,38 @@ import com.facebook.common.internal.ByteStreams;
  */
 public class WriterCallbacks {
 
-  /**
-   * Creates a writer callback that copies all the content read from an {@link InputStream} into
-   * the target stream.
-   *
-   * <p>This writer can be used only once.
-   * @param is the source
-   * @return the writer callback
-   */
-  public static WriterCallback from(final InputStream is) {
-   return new WriterCallback() {
-     @Override
-     public void write(OutputStream os) throws IOException {
-       ByteStreams.copy(is, os);
-     }
-   };
-  }
+    /**
+     * Creates a writer callback that copies all the content read from an {@link InputStream} into
+     * the target stream.
+     * <p>
+     * <p>This writer can be used only once.
+     *
+     * @param is the source
+     * @return the writer callback
+     */
+    public static WriterCallback from(final InputStream is) {
+        return new WriterCallback() {
+            @Override
+            public void write(OutputStream os) throws IOException {
+                ByteStreams.copy(is, os);
+            }
+        };
+    }
 
-  /**
-   * Creates a writer callback that writes some byte array to the target stream.
-   *
-   * <p>This writer can be used many times.
-   * @param data the bytes to write
-   * @return the writer callback
-   */
-  public static WriterCallback from(final byte[] data) {
-    return new WriterCallback() {
-      @Override
-      public void write(OutputStream os) throws IOException {
-        os.write(data);
-      }
-    };
-  }
+    /**
+     * Creates a writer callback that writes some byte array to the target stream.
+     * <p>
+     * <p>This writer can be used many times.
+     *
+     * @param data the bytes to write
+     * @return the writer callback
+     */
+    public static WriterCallback from(final byte[] data) {
+        return new WriterCallback() {
+            @Override
+            public void write(OutputStream os) throws IOException {
+                os.write(data);
+            }
+        };
+    }
 }

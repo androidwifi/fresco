@@ -19,34 +19,34 @@ import com.facebook.imagepipeline.request.ImageRequest;
  * Default implementation of {@link CacheKeyFactory}.
  */
 public class DefaultCacheKeyFactory implements CacheKeyFactory {
-  private static DefaultCacheKeyFactory sInstance = null;
+    private static DefaultCacheKeyFactory sInstance = null;
 
-  protected DefaultCacheKeyFactory() {
-  }
-
-  public static synchronized DefaultCacheKeyFactory getInstance() {
-    if (sInstance == null) {
-      sInstance = new DefaultCacheKeyFactory();
+    protected DefaultCacheKeyFactory() {
     }
-    return sInstance;
-  }
 
-  @Override
-  public CacheKey getBitmapCacheKey(ImageRequest request) {
-    return new BitmapMemoryCacheKey(
-        getCacheKeySourceUri(request.getSourceUri()).toString(),
-        request.getResizeOptions(),
-        request.getAutoRotateEnabled(),
-        request.getImageDecodeOptions());
-  }
+    public static synchronized DefaultCacheKeyFactory getInstance() {
+        if (sInstance == null) {
+            sInstance = new DefaultCacheKeyFactory();
+        }
+        return sInstance;
+    }
 
-  @Override
-  public CacheKey getEncodedCacheKey(ImageRequest request) {
-    return new SimpleCacheKey(getCacheKeySourceUri(request.getSourceUri()).toString());
-  }
+    @Override
+    public CacheKey getBitmapCacheKey(ImageRequest request) {
+        return new BitmapMemoryCacheKey(
+                getCacheKeySourceUri(request.getSourceUri()).toString(),
+                request.getResizeOptions(),
+                request.getAutoRotateEnabled(),
+                request.getImageDecodeOptions());
+    }
 
-  @Override
-  public Uri getCacheKeySourceUri(Uri sourceUri) {
-    return sourceUri;
-  }
+    @Override
+    public CacheKey getEncodedCacheKey(ImageRequest request) {
+        return new SimpleCacheKey(getCacheKeySourceUri(request.getSourceUri()).toString());
+    }
+
+    @Override
+    public Uri getCacheKeySourceUri(Uri sourceUri) {
+        return sourceUri;
+    }
 }

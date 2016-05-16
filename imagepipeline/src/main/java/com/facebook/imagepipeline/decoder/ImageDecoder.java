@@ -28,132 +28,132 @@ import com.facebook.imagepipeline.memory.PooledByteBufferInputStream;
 
 /**
  * Decodes images.
- *
+ * <p>
  * <p> ImageDecoder implements image type recognition and passes decode requests to
  * specialized methods implemented by subclasses.
- *
+ * <p>
  * On dalvik, it produces 'pinned' purgeable bitmaps.
- *
+ * <p>
  * <p> Pinned purgeables behave as specified in
  * {@link android.graphics.BitmapFactory.Options#inPurgeable} with one modification. The bitmap is
  * 'pinned' so is never purged.
- *
+ * <p>
  * <p> For API 21 and higher, this class produces standard Bitmaps, as purgeability is not supported
  * on the most recent versions of Android.
  */
 public class ImageDecoder {
 
-  private final AnimatedImageFactory mAnimatedImageFactory;
-  private final PlatformBitmapFactory mBitmapFactoryWithPool;
+    private final AnimatedImageFactory mAnimatedImageFactory;
+    private final PlatformBitmapFactory mBitmapFactoryWithPool;
 
-  public ImageDecoder(
-      final AnimatedImageFactory animatedImageFactory,
-      final PlatformBitmapFactory bitmapFactoryWithPool) {
-    mAnimatedImageFactory = animatedImageFactory;
-    mBitmapFactoryWithPool = bitmapFactoryWithPool;
-  }
-
-  /**
-   * Decodes image.
-   *
-   * @param pooledByteBufferRef buffer containing image data
-   * @param imageFormat if not null and not UNKNOWN, then format check is skipped and this one is
-   *   assumed.
-   * @param length if image type supports decoding incomplete image then determines where
-   *   the image data should be cut for decoding.
-   * @param qualityInfo quality information for the image
-   * @param options options that cange decode behavior
-   */
-  public CloseableImage decodeImage(
-      final CloseableReference<PooledByteBuffer> pooledByteBufferRef,
-      @Nullable ImageFormat imageFormat,
-      final int length,
-      final QualityInfo qualityInfo,
-      final ImageDecodeOptions options) {
-    if (imageFormat == null || imageFormat == ImageFormat.UNKNOWN) {
-      imageFormat = ImageFormatChecker.getImageFormat_WrapIOException(
-          new PooledByteBufferInputStream(pooledByteBufferRef.get()));
+    public ImageDecoder(
+            final AnimatedImageFactory animatedImageFactory,
+            final PlatformBitmapFactory bitmapFactoryWithPool) {
+        mAnimatedImageFactory = animatedImageFactory;
+        mBitmapFactoryWithPool = bitmapFactoryWithPool;
     }
 
-    switch (imageFormat) {
-      case UNKNOWN:
-        throw new IllegalArgumentException("unknown image format");
+    /**
+     * Decodes image.
+     *
+     * @param pooledByteBufferRef buffer containing image data
+     * @param imageFormat         if not null and not UNKNOWN, then format check is skipped and this one is
+     *                            assumed.
+     * @param length              if image type supports decoding incomplete image then determines where
+     *                            the image data should be cut for decoding.
+     * @param qualityInfo         quality information for the image
+     * @param options             options that cange decode behavior
+     */
+    public CloseableImage decodeImage(
+            final CloseableReference<PooledByteBuffer> pooledByteBufferRef,
+            @Nullable ImageFormat imageFormat,
+            final int length,
+            final QualityInfo qualityInfo,
+            final ImageDecodeOptions options) {
+        if (imageFormat == null || imageFormat == ImageFormat.UNKNOWN) {
+            imageFormat = ImageFormatChecker.getImageFormat_WrapIOException(
+                    new PooledByteBufferInputStream(pooledByteBufferRef.get()));
+        }
 
-      case JPEG:
-        return decodeJpeg(pooledByteBufferRef, length, qualityInfo);
+        switch (imageFormat) {
+            case UNKNOWN:
+                throw new IllegalArgumentException("unknown image format");
 
-      case GIF:
-        return decodeAnimatedGif(pooledByteBufferRef, options);
+            case JPEG:
+                return decodeJpeg(pooledByteBufferRef, length, qualityInfo);
 
-      case WEBP_ANIMATED:
-        return decodeAnimatedWebp(pooledByteBufferRef, options);
+            case GIF:
+                return decodeAnimatedGif(pooledByteBufferRef, options);
 
-      default:
-        return decodeStaticImage(pooledByteBufferRef);
+            case WEBP_ANIMATED:
+                return decodeAnimatedWebp(pooledByteBufferRef, options);
+
+            default:
+                return decodeStaticImage(pooledByteBufferRef);
+        }
     }
-  }
 
-  /**
-   * Decodes gif into CloseableImage.
-   *
-   * @param pooledByteBufferRef
-   * @return a CloseableGifImage
-   */
-  public CloseableImage decodeAnimatedGif(
-      CloseableReference<PooledByteBuffer> pooledByteBufferRef,
-      ImageDecodeOptions options) {
-    return mAnimatedImageFactory.decodeGif(pooledByteBufferRef, options);
-  }
-
-  /**
-   * @param pooledByteBufferRef input image (encoded bytes)
-   * @return a CloseableStaticBitmap
-   */
-  public synchronized CloseableStaticBitmap decodeStaticImage(
-      final CloseableReference<PooledByteBuffer> pooledByteBufferRef) {
-    CloseableReference<Bitmap> bitmapReference =
-        mBitmapFactoryWithPool.decodeFromPooledByteBuffer(pooledByteBufferRef);
-    try {
-      return new CloseableStaticBitmap(bitmapReference, ImmutableQualityInfo.FULL_QUALITY);
-    } finally {
-      bitmapReference.close();
+    /**
+     * Decodes gif into CloseableImage.
+     *
+     * @param pooledByteBufferRef
+     * @return a CloseableGifImage
+     */
+    public CloseableImage decodeAnimatedGif(
+            CloseableReference<PooledByteBuffer> pooledByteBufferRef,
+            ImageDecodeOptions options) {
+        return mAnimatedImageFactory.decodeGif(pooledByteBufferRef, options);
     }
-  }
 
-  /**
-   * Decodes a partial jpeg.
-   *
-   * @param pooledByteBufferRef
-   * @param length amount of currently available data in bytes
-   * @param qualityInfo quality info for the image
-   * @return a CloseableStaticBitmap
-   */
-  public synchronized CloseableStaticBitmap decodeJpeg(
-      final CloseableReference<PooledByteBuffer> pooledByteBufferRef,
-      int length,
-      QualityInfo qualityInfo) {
-    CloseableReference<Bitmap> bitmapReference =
-        mBitmapFactoryWithPool.decodeJPEGFromPooledByteBuffer(pooledByteBufferRef, length);
-    try {
-      return new CloseableStaticBitmap(bitmapReference, qualityInfo);
-    } finally {
-      bitmapReference.close();
+    /**
+     * @param pooledByteBufferRef input image (encoded bytes)
+     * @return a CloseableStaticBitmap
+     */
+    public synchronized CloseableStaticBitmap decodeStaticImage(
+            final CloseableReference<PooledByteBuffer> pooledByteBufferRef) {
+        CloseableReference<Bitmap> bitmapReference =
+                mBitmapFactoryWithPool.decodeFromPooledByteBuffer(pooledByteBufferRef);
+        try {
+            return new CloseableStaticBitmap(bitmapReference, ImmutableQualityInfo.FULL_QUALITY);
+        } finally {
+            bitmapReference.close();
+        }
     }
-  }
 
-  /**
-   * Decode a webp animated image into a CloseableImage.
-   *
-   * <p> The image is decoded into a 'pinned' purgeable bitmap.
-   *
-   * @param pooledByteBufferRef input image (encoded bytes)
-   * @param options
-   * @return a {@link CloseableImage}
-   */
-  public CloseableImage decodeAnimatedWebp(
-      final CloseableReference<PooledByteBuffer> pooledByteBufferRef,
-      final ImageDecodeOptions options) {
-    return mAnimatedImageFactory.decodeWebP(pooledByteBufferRef, options);
-  }
+    /**
+     * Decodes a partial jpeg.
+     *
+     * @param pooledByteBufferRef
+     * @param length              amount of currently available data in bytes
+     * @param qualityInfo         quality info for the image
+     * @return a CloseableStaticBitmap
+     */
+    public synchronized CloseableStaticBitmap decodeJpeg(
+            final CloseableReference<PooledByteBuffer> pooledByteBufferRef,
+            int length,
+            QualityInfo qualityInfo) {
+        CloseableReference<Bitmap> bitmapReference =
+                mBitmapFactoryWithPool.decodeJPEGFromPooledByteBuffer(pooledByteBufferRef, length);
+        try {
+            return new CloseableStaticBitmap(bitmapReference, qualityInfo);
+        } finally {
+            bitmapReference.close();
+        }
+    }
+
+    /**
+     * Decode a webp animated image into a CloseableImage.
+     * <p>
+     * <p> The image is decoded into a 'pinned' purgeable bitmap.
+     *
+     * @param pooledByteBufferRef input image (encoded bytes)
+     * @param options
+     * @return a {@link CloseableImage}
+     */
+    public CloseableImage decodeAnimatedWebp(
+            final CloseableReference<PooledByteBuffer> pooledByteBufferRef,
+            final ImageDecodeOptions options) {
+        return mAnimatedImageFactory.decodeWebP(pooledByteBufferRef, options);
+    }
 
 }

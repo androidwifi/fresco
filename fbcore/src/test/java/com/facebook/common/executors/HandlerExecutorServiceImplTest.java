@@ -27,37 +27,37 @@ import org.robolectric.util.Scheduler;
 @RunWith(WithTestDefaultsRunner.class)
 public class HandlerExecutorServiceImplTest {
 
-  private AtomicInteger mCounter = new AtomicInteger();
+    private AtomicInteger mCounter = new AtomicInteger();
 
-  private HandlerExecutorServiceImpl mExecutorService;
+    private HandlerExecutorServiceImpl mExecutorService;
 
-  Runnable mIncrementCounterRunnable = new Runnable() {
-    @Override
-    public void run() {
-      mCounter.incrementAndGet();
+    Runnable mIncrementCounterRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mCounter.incrementAndGet();
+        }
+    };
+
+    @Before
+    public void setup() {
+        Handler handler = new Handler();
+        mExecutorService = new HandlerExecutorServiceImpl(handler);
     }
-  };
 
-  @Before
-  public void setup() {
-    Handler handler = new Handler();
-    mExecutorService = new HandlerExecutorServiceImpl(handler);
-  }
+    @Test
+    public void testSimpleExecute() {
+        ShadowLooper.pauseMainLooper();
+        mExecutorService.execute(mIncrementCounterRunnable);
+        Assert.assertEquals(0, mCounter.get());
+        ShadowLooper.unPauseMainLooper();
+        Assert.assertEquals(1, mCounter.get());
+    }
 
-  @Test
-  public void testSimpleExecute() {
-    ShadowLooper.pauseMainLooper();
-    mExecutorService.execute(mIncrementCounterRunnable);
-    Assert.assertEquals(0, mCounter.get());
-    ShadowLooper.unPauseMainLooper();
-    Assert.assertEquals(1, mCounter.get());
-  }
-
-  @Test
-  public void testDelay() {
-    mExecutorService.schedule(mIncrementCounterRunnable, 30, TimeUnit.SECONDS);
-    Assert.assertEquals(0, mCounter.get());
-    Robolectric.shadowOf(ShadowLooper.getMainLooper()).getScheduler().advanceBy(30 * 1000);
-    Assert.assertEquals(1, mCounter.get());
-  }
+    @Test
+    public void testDelay() {
+        mExecutorService.schedule(mIncrementCounterRunnable, 30, TimeUnit.SECONDS);
+        Assert.assertEquals(0, mCounter.get());
+        Robolectric.shadowOf(ShadowLooper.getMainLooper()).getScheduler().advanceBy(30 * 1000);
+        Assert.assertEquals(1, mCounter.get());
+    }
 }

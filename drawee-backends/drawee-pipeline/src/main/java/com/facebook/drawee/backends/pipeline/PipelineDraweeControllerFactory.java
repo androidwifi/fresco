@@ -25,33 +25,33 @@ import com.facebook.imagepipeline.animated.factory.AnimatedDrawableFactory;
  */
 public class PipelineDraweeControllerFactory {
 
-  private Resources mResources;
-  private DeferredReleaser mDeferredReleaser;
-  private AnimatedDrawableFactory mAnimatedDrawableFactory;
-  private Executor mUiThreadExecutor;
+    private Resources mResources;
+    private DeferredReleaser mDeferredReleaser;
+    private AnimatedDrawableFactory mAnimatedDrawableFactory;
+    private Executor mUiThreadExecutor;
 
-  public PipelineDraweeControllerFactory(
-      Resources resources,
-      DeferredReleaser deferredReleaser,
-      AnimatedDrawableFactory animatedDrawableFactory,
-      Executor uiThreadExecutor) {
-    mResources = resources;
-    mDeferredReleaser = deferredReleaser;
-    mAnimatedDrawableFactory = animatedDrawableFactory;
-    mUiThreadExecutor = uiThreadExecutor;
-  }
+    public PipelineDraweeControllerFactory(
+            Resources resources,
+            DeferredReleaser deferredReleaser,
+            AnimatedDrawableFactory animatedDrawableFactory,
+            Executor uiThreadExecutor) {
+        mResources = resources;
+        mDeferredReleaser = deferredReleaser;
+        mAnimatedDrawableFactory = animatedDrawableFactory;
+        mUiThreadExecutor = uiThreadExecutor;
+    }
 
-  public PipelineDraweeController newController(
-      Supplier<DataSource<CloseableReference<CloseableImage>>> dataSourceSupplier,
-      String id,
-      Object callerContext) {
-    return new PipelineDraweeController(
-        mResources,
-        mDeferredReleaser,
-        mAnimatedDrawableFactory,
-        mUiThreadExecutor,
-        dataSourceSupplier,
-        id,
-        callerContext);
-  }
+    public PipelineDraweeController newController(
+            Supplier<DataSource<CloseableReference<CloseableImage>>> dataSourceSupplier,
+            String id,
+            Object callerContext) {
+        return new PipelineDraweeController(
+                mResources,
+                mDeferredReleaser,
+                mAnimatedDrawableFactory,
+                mUiThreadExecutor,
+                dataSourceSupplier,
+                id,
+                callerContext);
+    }
 }

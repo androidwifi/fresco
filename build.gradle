@@ -26,7 +26,7 @@ subprojects {
     }
 
     afterEvaluate { project ->
-      allclean.dependsOn(project.tasks.matching {it.name == 'clean'})
+        allclean.dependsOn(project.tasks.matching { it.name == 'clean' })
     }
 }
 

@@ -21,35 +21,37 @@ import com.facebook.fresco.sample.configs.volley.SampleVolleyFactory;
 import com.facebook.fresco.sample.instrumentation.InstrumentedNetworkImageView;
 import com.facebook.fresco.sample.instrumentation.PerfListener;
 
-/** Populate the list view with images using the Volley library's ImageLoader. */
+/**
+ * Populate the list view with images using the Volley library's ImageLoader.
+ */
 public class VolleyAdapter extends ImageListAdapter<InstrumentedNetworkImageView> {
 
-  private final ImageLoader mImageLoader;
+    private final ImageLoader mImageLoader;
 
-  public VolleyAdapter(Context context, int resourceId, PerfListener perfListener) {
-    super(context, resourceId, perfListener);
-    mImageLoader = SampleVolleyFactory.getImageLoader(context);
-  }
+    public VolleyAdapter(Context context, int resourceId, PerfListener perfListener) {
+        super(context, resourceId, perfListener);
+        mImageLoader = SampleVolleyFactory.getImageLoader(context);
+    }
 
-  @Override
-  protected Class<InstrumentedNetworkImageView> getViewClass() {
-    return InstrumentedNetworkImageView.class;
-  }
+    @Override
+    protected Class<InstrumentedNetworkImageView> getViewClass() {
+        return InstrumentedNetworkImageView.class;
+    }
 
-  protected InstrumentedNetworkImageView createView() {
-    InstrumentedNetworkImageView view = new InstrumentedNetworkImageView(getContext());
-    view.setDefaultImageResId(R.color.placeholder);
-    view.setErrorImageResId(R.color.error);
-    return view;
-  }
+    protected InstrumentedNetworkImageView createView() {
+        InstrumentedNetworkImageView view = new InstrumentedNetworkImageView(getContext());
+        view.setDefaultImageResId(R.color.placeholder);
+        view.setErrorImageResId(R.color.error);
+        return view;
+    }
 
-  protected void bind(InstrumentedNetworkImageView view, String uri) {
-    view.setImageUrl(uri, mImageLoader);
-  }
+    protected void bind(InstrumentedNetworkImageView view, String uri) {
+        view.setImageUrl(uri, mImageLoader);
+    }
 
-  @Override
-  public void shutDown() {
-    super.clear();
-    SampleVolleyFactory.getMemoryCache().clear();
-  }
+    @Override
+    public void shutDown() {
+        super.clear();
+        SampleVolleyFactory.getMemoryCache().clear();
+    }
 }
